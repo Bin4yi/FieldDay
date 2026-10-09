@@ -7,6 +7,7 @@ export type Route =
   | { name: 'games' }
   | { name: 'setup'; id: string }
   | { name: 'play' }
+  | { name: 'check' }
   | { name: 'results'; id: number }
   | { name: 'history' }
   | { name: 'settings' };
@@ -20,6 +21,8 @@ export function parseRoute(hash: string): Route {
       return parts[1] ? { name: 'setup', id: parts[1] } : { name: 'games' };
     case 'play':
       return { name: 'play' };
+    case 'check':
+      return { name: 'check' };
     case 'results': {
       const id = Number(parts[1]);
       return Number.isInteger(id) ? { name: 'results', id } : { name: 'history' };

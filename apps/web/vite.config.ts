@@ -27,7 +27,32 @@ export default defineConfig({
       workbox: {
         // Everything the app needs to work with no signal.
         globPatterns: ['**/*.{js,css,html,ico,png,webp,woff2,svg}'],
+        globIgnores: ['mediapipe/**'],
+        maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         navigateFallback: '/index.html',
+        // Big model files: cached the first time they are used (or from
+        // Settings → "Get ready for offline"), then served from the phone.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/mediapipe/'),
+            handler: 'CacheFirst',
+            options: { cacheName: 'fd-wasm', expiration: { maxEntries: 40 } },
+          },
+          {
+            urlPattern: ({ url }) =>
+              url.hostname === 'storage.googleapis.com' ||
+              url.hostname === 'huggingface.co' ||
+              url.hostname.endsWith('.hf.co') ||
+              url.hostname === 'cdn-lfs.huggingface.co',
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fd-models',
+              expiration: { maxEntries: 60 },
+              cacheableResponse: { statuses: [0, 200] },
+              rangeRequests: true,
+            },
+          },
+        ],
       },
     }),
   ],

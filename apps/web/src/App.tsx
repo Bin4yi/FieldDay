@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useRoute } from './router.js';
 import { useApp } from './store.js';
+import { FieldCheck } from './screens/FieldCheck.js';
 import { GameSetup } from './screens/GameSetup.js';
 import { History } from './screens/History.js';
 import { Home } from './screens/Home.js';
@@ -25,6 +26,8 @@ export function App() {
       return <GameSetup id={route.id} />;
     case 'play':
       return <Play />;
+    case 'check':
+      return <FieldCheck />;
     case 'results':
       return <Results id={route.id} />;
     case 'history':

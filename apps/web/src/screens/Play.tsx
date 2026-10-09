@@ -8,6 +8,8 @@ import { describeMoment, eventWord, formatValue, scoreMeasure, scoreUnit } from 
 import { go, href } from '../router.js';
 import { speak, stopSpeaking } from '../speech.js';
 import { useApp } from '../store.js';
+import { useVision } from '../vision/useVision.js';
+import type { MascotKey } from '../assets.js';
 import { DEFAULT_MEASURE, padButtons } from '../tapPad.js';
 
 const COUNTDOWN = 3;
@@ -24,6 +26,8 @@ export function Play() {
   const [line, setLine] = useState('Get ready!');
   const [picked, setPicked] = useState(0);
   const [values, setValues] = useState<Record<string, number>>({});
+  const [volt, setVolt] = useState<MascotKey>('whistle');
+  const [hit, setHit] = useState(0);
 
   if (session && !engineRef.current) {
     engineRef.current = createGame(session.spec, {
@@ -42,6 +46,9 @@ export function Play() {
         setLine(lines.at(-1)!);
         if (voice) speak(lines.join(' '));
       }
+      const pose = voltFor(moments, session.spec.mode === 'boss_raid');
+      if (pose) setVolt(pose);
+      if (moments.some((m) => m.kind === 'boss_hit')) setHit((h) => h + 1);
       const over = moments.find((m) => m.kind === 'game_over');
       if (over && !saved.current) {
         saved.current = true;
@@ -93,6 +100,24 @@ export function Play() {
 
   useEffect(() => () => stopSpeaking(), []);
 
+  const vision = useVision({
+    mode: session?.camera ?? 'off',
+    spec: session?.spec ?? null,
+    clock: now,
+    batterySaver: useApp.getState().settings.batterySaver,
+    calibrations: session?.calibrations ?? [],
+    histograms: session?.histograms ?? [],
+    zones: session?.zones ?? [],
+    lineY: session?.lineY ?? null,
+    mic: true,
+    activePlayer: () => (game && game.isTurnMode ? game.state.turnPlayer : null),
+    onEvents: (events) => {
+      if (!game || game.state.phase !== 'playing') return;
+      const moments = events.flatMap((e) => game.dispatch(e));
+      if (moments.length) handle(moments);
+    },
+  });
+
   if (!session || !game) {
     return (
       <div className="screen">
@@ -129,21 +154,54 @@ export function Play() {
     );
   };
 
+  const lowTime = left !== null && left <= 3;
+  const pad = (
+    <section className="pad" aria-label="Tap what happened">
+      <h2>Tap what happened{turnMode ? '' : ` (for ${players[picked]})`}</h2>
+      <div className="pad__grid">
+        {buttons.map((b) => (
+          <div key={b.key} className="pad__item">
+            <BigButton tone="yellow" disabled={!playing} onClick={() => tap(b)}>
+              {eventWord(b.event)}
+              {b.target ? `: ${b.target}` : ''}
+            </BigButton>
+            {b.measure ? (
+              <label className="pad__measure">
+                <span>{b.measure.replace('_', ' ')}</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step="0.1"
+                  min="0"
+                  value={values[b.key] ?? DEFAULT_MEASURE[b.measure] ?? 1}
+                  onChange={(e) => setValues({ ...values, [b.key]: Number(e.target.value) })}
+                />
+              </label>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
   return (
-    <div className="screen play">
+    <div className={`screen play ${spec.mode === 'boss_raid' ? 'screen--arena' : ''}`}>
       <header className="play__bar">
         <a className="topbar__back" href={href({ name: 'home' })} aria-label="Quit game">
           ✕
         </a>
         <span className="play__title">{spec.title}</span>
         <span className="play__round">
-          Round {Math.min(s.round + 1, spec.rounds)}/{spec.rounds}
+          R{Math.min(s.round + 1, spec.rounds)}/{spec.rounds}
         </span>
       </header>
 
       {countdown !== null ? (
         <div className="countdown" role="timer" aria-live="assertive">
-          {countdown}
+          <div>
+            {countdown}
+            <small>{turnMode && s.turnPlayer !== null ? `${players[s.turnPlayer]} get ready` : 'Get ready'}</small>
+          </div>
         </div>
       ) : null}
 
@@ -154,10 +212,40 @@ export function Play() {
       ) : null}
 
       <main className="screen__body play__body">
+        {session.camera !== 'off' ? (
+          <div className="camera">
+            <video ref={vision.videoRef} playsInline muted aria-hidden="true" />
+            <canvas ref={vision.canvasRef} aria-hidden="true" />
+            <div className="camera__hud">
+              <span className="camera__fps">
+                {vision.status === 'running' ? `${Math.round(vision.stats.fps)} FPS` : vision.status.toUpperCase()}
+              </span>
+              {session.camera === 'demo' ? <span className="sticker sticker--white">Demo camera</span> : null}
+            </div>
+          </div>
+        ) : null}
+        {vision.error ? (
+          <p className="card card--coral" role="alert">
+            Camera problem: {vision.error}. Use the tap buttons below.
+          </p>
+        ) : null}
+
         {spec.boss && s.bossHp !== null ? (
           <div className="boss">
-            <Art asset={ASSETS.bosses.thunderRock} size={140} />
-            <div className="hp" role="meter" aria-label={`${spec.boss.name} health`} aria-valuemin={0} aria-valuemax={spec.boss.hp} aria-valuenow={s.bossHp}>
+            <Art
+              key={hit}
+              className={`boss__img ${s.bossHp === 0 ? 'is-down' : hit ? 'is-hit' : ''}`}
+              asset={bossAsset(spec.boss.hp)}
+              size={130}
+            />
+            <div
+              className="hp"
+              role="meter"
+              aria-label={`${spec.boss.name} health`}
+              aria-valuemin={0}
+              aria-valuemax={spec.boss.hp}
+              aria-valuenow={s.bossHp}
+            >
               <div className="hp__fill" style={{ width: `${(100 * s.bossHp) / spec.boss.hp}%` }} />
               <span>
                 {spec.boss.name}: {s.bossHp} HP
@@ -173,12 +261,15 @@ export function Play() {
             label={turnMode ? 'This turn' : 'Score'}
             unit={unit}
           />
-          {left !== null ? <span className="play__timer">⏱ {left}s</span> : null}
+          {left !== null ? <span className={`play__timer ${lowTime ? 'is-low' : ''}`}>⏱ {left}s</span> : null}
         </div>
 
-        <p className="ref-line" aria-live="polite">
-          {line}
-        </p>
+        <div className="ref">
+          <Art key={volt + line} className="ref__volt is-pop" asset={ASSETS.mascot[volt]} size={84} decorative />
+          <p className="ref-line" aria-live="polite">
+            {line}
+          </p>
+        </div>
 
         <ol className="scoreboard scoreboard--compact">
           {players.map((name, i) => (
@@ -198,32 +289,14 @@ export function Play() {
           ))}
         </ol>
 
-        <section className="pad" aria-label="Tap what happened">
-          <h2 className="pad__title">Tap what happened{turnMode ? '' : ` (for ${players[picked]})`}</h2>
-          <div className="pad__grid">
-            {buttons.map((b) => (
-              <div key={b.key} className="pad__item">
-                <BigButton tone="yellow" disabled={!playing} onClick={() => tap(b)}>
-                  {eventWord(b.event)}
-                  {b.target ? `: ${b.target}` : ''}
-                </BigButton>
-                {b.measure ? (
-                  <label className="pad__measure">
-                    <span>{b.measure.replace('_', ' ')}</span>
-                    <input
-                      type="number"
-                      inputMode="decimal"
-                      step="0.1"
-                      min="0"
-                      value={values[b.key] ?? DEFAULT_MEASURE[b.measure] ?? 1}
-                      onChange={(e) => setValues({ ...values, [b.key]: Number(e.target.value) })}
-                    />
-                  </label>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </section>
+        {session.camera === 'off' ? (
+          pad
+        ) : (
+          <details className="card card--navy">
+            <summary className="display">Manual taps (if the camera misses)</summary>
+            {pad}
+          </details>
+        )}
 
         <div className="play__actions">
           <BigButton tone="ghost" disabled={!playing} onClick={() => handle(game.forceEndTurn(now()))}>
@@ -233,4 +306,23 @@ export function Play() {
       </main>
     </div>
   );
+}
+
+function bossAsset(hp: number) {
+  if (hp >= 300) return ASSETS.bosses.megaBall;
+  if (hp >= 200) return ASSETS.bosses.stormCloud;
+  return ASSETS.bosses.thunderRock;
+}
+
+/** Which Volt pose fits what just happened. */
+export function voltFor(moments: RefereeMoment[], boss: boolean): MascotKey | null {
+  let pose: MascotKey | null = null;
+  for (const m of moments) {
+    if (m.kind === 'turn_start' || m.kind === 'game_start' || m.kind === 'call') pose = boss ? 'bossFight' : 'whistle';
+    if (m.kind === 'score' || m.kind === 'boss_hit') pose = boss ? 'bossFight' : 'jump';
+    if (m.kind === 'new_best' || m.kind === 'boss_defeated' || m.kind === 'lead_change') pose = 'cheer';
+    if (m.kind === 'foul' || m.kind === 'life_lost' || m.kind === 'out') pose = 'miss';
+    if (m.kind === 'game_over') pose = m.winners.length ? 'cheer' : 'miss';
+  }
+  return pose;
 }

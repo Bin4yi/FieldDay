@@ -1,5 +1,5 @@
 import type { Calibration } from './calibration.js';
-import { pxToMetres } from './calibration.js';
+import { calibrate, pxToMetres } from './calibration.js';
 import { angle, dist, inBox, median, mid } from './geometry.js';
 import { LM } from './landmarks.js';
 import type { Point, VisionEvent, Zone } from './types.js';
@@ -19,6 +19,8 @@ export interface PoseDetectorOptions {
   lineY?: number | null;
   zones?: Zone[];
   objects?: Zone[];
+  /** Height to assume (m) when nobody calibrated, so heights are still roughly right. */
+  assumedHeightM?: number;
 }
 
 interface Body {
@@ -73,6 +75,7 @@ function toBody(t: number, lm: Point[]): Body | null {
 }
 
 export class PoseEventDetector {
+  private auto: Calibration | null = null;
   private opts: Required<Omit<PoseDetectorOptions, 'calibration' | 'lineY'>> & {
     calibration: Calibration | null;
     lineY: number | null;
@@ -101,7 +104,18 @@ export class PoseEventDetector {
       lineY: opts.lineY ?? null,
       zones: opts.zones ?? [],
       objects: opts.objects ?? [],
+      assumedHeightM: opts.assumedHeightM ?? 1.65,
     };
+  }
+
+  /** The calibration in use: the real one, or an estimate from the assumed height. */
+  get calibration(): Calibration | null {
+    return this.opts.calibration ?? this.auto;
+  }
+
+  /** True when heights come from the assumed height, not a real calibration. */
+  get estimated(): boolean {
+    return !this.opts.calibration && !!this.auto;
   }
 
   setCalibration(c: Calibration | null) {
@@ -130,7 +144,7 @@ export class PoseEventDetector {
   }
 
   private metres(px: number, frameH: number): number | undefined {
-    const c = this.opts.calibration;
+    const c = this.calibration;
     return c ? pxToMetres(px, c, frameH) : undefined;
   }
 
@@ -166,6 +180,9 @@ export class PoseEventDetector {
         if (this.standLeg === null || legs >= this.standLeg * 0.95) {
           this.standHipY = hip;
           this.standLeg = legs;
+          if (!this.opts.calibration) {
+            this.auto = calibrate(this.opts.assumedHeightM, recent.map((h) => h.span), frameH);
+          }
         }
       }
     }

@@ -110,6 +110,8 @@ export class VisionPipeline {
         for (const k of [LM.leftWrist, LM.rightWrist]) if (lm[k]) hands.push(lm[k]!);
       });
       const det = this.detectors[this.active ?? 0];
+      // No real calibration for the ball yet? Use the thrower's estimate.
+      if (!this.opts.calibrations?.[this.active ?? 0] && det?.calibration) this.ball.setCalibration(det.calibration);
       raw.push(
         ...this.ball.update({
           t: frame.t,

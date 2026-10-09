@@ -1,24 +1,27 @@
-import { Art } from '../Art.js';
 import { useState } from 'react';
-import { getTemplate, withPlayers } from '@fieldday/engine';
+import { getTemplate, withPlayers, type GameSpec } from '@fieldday/engine';
 import { BigButton } from '@fieldday/ui';
+import { Art } from '../Art.js';
 import { introMascot } from '../gameInfo.js';
 import { go, href } from '../router.js';
 import { speak } from '../speech.js';
-import { useApp } from '../store.js';
+import { newSession, useApp } from '../store.js';
 import { Screen } from './Layout.js';
 
 export function GameSetup({ id }: { id: string }) {
-  const template = getTemplate(id);
+  const draft = useApp((s) => s.draft);
+  const spec: GameSpec | undefined = id === 'draft' ? (draft ?? undefined) : getTemplate(id);
   const settings = useApp((s) => s.settings);
   const setSetting = useApp((s) => s.setSetting);
   const startSession = useApp((s) => s.startSession);
-  const min = template?.min_players ?? template?.players ?? 1;
-  const max = template?.max_players ?? template?.players ?? 1;
-  const [count, setCount] = useState(() => Math.max(min, Math.min(max, settings.playerNames.length)));
+  const min = spec?.min_players ?? spec?.players ?? 1;
+  const max = spec?.max_players ?? spec?.players ?? 1;
+  const [count, setCount] = useState(() =>
+    Math.max(min, Math.min(max, spec?.players ?? settings.playerNames.length)),
+  );
   const [names, setNames] = useState<string[]>(() => settings.playerNames);
 
-  if (!template) {
+  if (!spec) {
     return (
       <Screen title="Game not found">
         <p>
@@ -29,19 +32,19 @@ export function GameSetup({ id }: { id: string }) {
   }
 
   const nameAt = (i: number) => names[i] ?? `Player ${i + 1}`;
-  const start = () => {
+  const begin = (camera: 'camera' | 'demo' | 'off') => {
     const players = Array.from({ length: count }, (_, i) => nameAt(i).trim() || `Player ${i + 1}`);
     setSetting('playerNames', players);
-    startSession({ spec: withPlayers(template, count), players });
-    go({ name: 'play' });
+    startSession(newSession(withPlayers(spec, count), players, camera));
+    go(camera === 'off' ? { name: 'play' } : { name: 'check' });
   };
 
   return (
-    <Screen title={template.title}>
+    <Screen title={spec.title}>
       <div className="setup">
-        <Art className="setup__icon" asset={introMascot(template)} size={180} decorative />
-        <p className="rules">{template.one_line_rules}</p>
-        <BigButton tone="ghost" icon="🔊" onClick={() => speak(template.one_line_rules, { interrupt: true })}>
+        <Art className="setup__icon" asset={introMascot(spec)} size={180} decorative />
+        <p className="rules">{spec.one_line_rules}</p>
+        <BigButton tone="ghost" icon="🔊" onClick={() => speak(spec.one_line_rules, { interrupt: true })}>
           Hear the rules
         </BigButton>
 
@@ -78,12 +81,21 @@ export function GameSetup({ id }: { id: string }) {
           ))}
         </fieldset>
 
-        <p className="note">
-          Test mode: there is no camera yet, so you tap what happens and the phone keeps score and calls the game.
-        </p>
-        <BigButton tone="green" icon="▶" onClick={start}>
-          Start
+        <BigButton tone="green" icon="📷" onClick={() => begin('camera')}>
+          Camera referee
         </BigButton>
+        <div className="grid2">
+          <BigButton tone="ghost" icon="👆" onClick={() => begin('off')}>
+            Tap mode
+          </BigButton>
+          <BigButton tone="ghost" icon="🤖" onClick={() => begin('demo')}>
+            Demo camera
+          </BigButton>
+        </div>
+        <p className="note">
+          Camera referee: put the phone down 3–4 m away so your whole body fits. Tap mode: no camera, you tap what
+          happens. Demo camera: a pretend player, to try things out.
+        </p>
       </div>
     </Screen>
   );

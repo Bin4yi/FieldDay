@@ -50,6 +50,15 @@ describe('pose events', () => {
     got.forEach((h, i) => expect(Math.abs(h - jumps[i]!) / jumps[i]!, `jump ${i}: ${h}`).toBeLessThan(0.1));
   });
 
+  it('without calibration, estimates heights from the assumed body height', () => {
+    const det = new PoseEventDetector({ assumedHeightM: H });
+    const frames = simulate(4, (s) => ({ poses: [{ ...base, lift: jumpLift(s, 2, 0.4) }] }));
+    const { out } = runPose(frames, det);
+    const h = out.find((e) => e.type === 'jump')?.measures?.height_m;
+    expect(det.estimated).toBe(true);
+    expect(Math.abs(h! - 0.4) / 0.4).toBeLessThan(0.1);
+  });
+
   it('counts squats', () => {
     const det = calibrated();
     const frames = simulate(8, (s) => ({ poses: [{ ...base, squat: Math.max(0, Math.sin(s * Math.PI * 0.75)) }] }));

@@ -9,7 +9,7 @@ test('home → quick game → play Sky Toss with taps → result saved', async (
   await page.getByRole('link', { name: /Sky Toss Showdown/ }).click();
   await page.getByRole('button', { name: 'Fewer players' }).click();
   await page.getByRole('textbox', { name: 'Player 1 name' }).fill('Binula');
-  await page.getByRole('button', { name: 'Start' }).click();
+  await page.getByRole('button', { name: 'Tap mode' }).click();
 
   const apex = page.getByRole('button', { name: 'Top of throw' });
   const height = page.getByRole('spinbutton');
@@ -39,4 +39,19 @@ test('works offline after the first visit', async ({ page, context }) => {
   await page.getByRole('link', { name: 'Quick Games' }).click();
   await expect(page.locator('.game-card')).toHaveCount(12);
   await expect(page.locator('.game-card img').first()).toHaveJSProperty('complete', true);
+});
+
+test('demo camera referees Jump Battle end to end (no taps)', async ({ page }) => {
+  test.setTimeout(120_000);
+  await page.goto('/#/setup/jump_battle');
+  await page.getByRole('button', { name: 'Fewer players' }).click();
+  await page.getByRole('textbox', { name: 'Player 1 name' }).fill('Ama');
+  await page.getByRole('button', { name: 'Demo camera' }).click();
+  await expect(page.getByRole('heading', { name: 'Field Check' })).toBeVisible();
+  await expect(page.getByText('Whole body in view')).toBeVisible();
+  await page.getByRole('button', { name: 'Space is clear' }).click();
+  await page.getByRole('button', { name: /start/i }).first().click();
+  // The demo player jumps every 8 seconds; 3 jumps finish the game.
+  await expect(page.getByRole('heading', { name: 'Ama wins!' })).toBeVisible({ timeout: 90_000 });
+  await expect(page.locator('.scoreboard')).toContainText(' m');
 });
