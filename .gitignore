@@ -12,3 +12,13 @@ test-results
 *.sqlite
 apps/web/public/mediapipe
 apps/web/public/ort
+
+# promo video: generated files (rebuild with video/tools)
+video/fieldday-promo/assets/clips/
+video/fieldday-promo/snapshots/
+video/fieldday-promo/.hyperframes/
+video/tracking/frames/
+video/fieldday-promo/renders/work-*/
+video/fieldday-promo/renders/.*transaction*/
+video/fieldday-promo/renders/fieldday-promo-1080p.mp4
+video/fieldday-promo/renders/preview-720p.mp4
