@@ -2,7 +2,7 @@
 title: "FieldDay: say any game, play it outside, and let your phone be the referee"
 published: false
 tags: devchallenge, hf26challenge, ai, opensource
-cover_image: https://raw.githubusercontent.com/Bin4yi/FieldDay/main/assets/screens/hero_banner.png
+cover_image: https://raw.githubusercontent.com/Bin4yi/FieldDay/claude/tender-planck-i94bxw/docs/cover.png
 ---
 
 *This is a submission for the [Hacktoberfest Open-Source AI Challenge Week 1: Touch Grass](https://dev.to/challenges/hacktoberfest-week1-2026-10-05)*
