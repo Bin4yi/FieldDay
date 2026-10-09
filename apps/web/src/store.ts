@@ -1,12 +1,27 @@
 import { create } from 'zustand';
-import type { GameSpec } from '@fieldday/engine';
+import type { Bracket, GameSpec, HillState } from '@fieldday/engine';
 import type { Calibration, Zone } from '@fieldday/vision';
 import type { CameraMode } from './vision/useVision.js';
 import { db } from './db.js';
 import { DEFAULT_SETTINGS, loadSettings, saveSetting, type Settings } from './settings.js';
 
+export type Format =
+  | { kind: 'single' }
+  | { kind: 'chaos'; base: GameSpec; seed: number }
+  | { kind: 'koth' }
+  | { kind: 'tournament' }
+  | { kind: 'quest'; step: number };
+
+/** A run of matches (King of the Hill / Tournament) across several games. */
+export type Series =
+  | { kind: 'koth'; base: GameSpec; hill: HillState; camera: CameraMode }
+  | { kind: 'tournament'; base: GameSpec; bracket: Bracket; matchId: number | null; camera: CameraMode };
+
 export interface Session {
   spec: GameSpec;
+  format: Format;
+  /** Global player indexes of this match's players (series). */
+  seats?: number[];
   players: string[];
   camera: CameraMode;
   /** Per player, from Field Check. */
@@ -24,6 +39,8 @@ interface AppState {
   /** A game the brain just designed, waiting for setup. */
   draft: GameSpec | null;
   setDraft(spec: GameSpec | null): void;
+  series: Series | null;
+  setSeries(s: Series | null): void;
   loadSettings(): Promise<void>;
   setSetting<K extends keyof Settings>(key: K, value: Settings[K]): void;
   startSession(s: Session): void;
@@ -37,6 +54,10 @@ export const useApp = create<AppState>((set) => ({
   draft: null,
   setDraft(draft) {
     set({ draft });
+  },
+  series: null,
+  setSeries(series) {
+    set({ series });
   },
   async loadSettings() {
     try {
@@ -58,9 +79,10 @@ export const useApp = create<AppState>((set) => ({
   },
 }));
 
-export function newSession(spec: GameSpec, players: string[], camera: CameraMode): Session {
+export function newSession(spec: GameSpec, players: string[], camera: CameraMode, format: Format = { kind: 'single' }): Session {
   return {
     spec,
+    format,
     players,
     camera,
     calibrations: players.map(() => null),

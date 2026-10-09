@@ -89,3 +89,49 @@ test('model runtimes are served locally (no CDN needed)', async ({ request }) =>
     expect(r.status(), path).toBe(200);
   }
 });
+
+async function goOffline(page: import('@playwright/test').Page, context: import('@playwright/test').BrowserContext) {
+  await page.goto('/');
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await page.reload();
+  await context.setOffline(true);
+}
+
+test('Phase 4: 2-player Boss Raid runs end to end offline', async ({ page, context }) => {
+  test.setTimeout(90_000);
+  await goOffline(page, context);
+  await page.getByRole('link', { name: 'Boss Raid' }).click();
+  await page.getByRole('button', { name: 'Tap mode' }).click();
+  const jump = page.getByRole('button', { name: 'Jump', exact: true });
+  await expect(jump).toBeEnabled({ timeout: 10_000 });
+  for (let i = 0; i < 30; i++) {
+    await page.locator('.pick').nth(i % 2).click();
+    await jump.click();
+  }
+  await expect(page.getByRole('heading', { name: /win!/ })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/Screen time: \d+%/)).toBeVisible();
+});
+
+test('Phase 4: Rule Draft match runs end to end offline', async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await goOffline(page, context);
+  await page.goto('/#/setup/squat_storm');
+  await page.getByRole('button', { name: 'Rule Draft' }).click();
+  await page.getByRole('textbox', { name: /Player 1: say a rule/ }).fill('2 rounds');
+  await page.getByRole('textbox', { name: /Player 2: say a rule/ }).fill('10 seconds');
+  await page.getByRole('button', { name: 'Tap mode' }).click();
+  const squat = page.getByRole('button', { name: 'Squat', exact: true });
+  for (let round = 0; round < 2; round++) {
+    await expect(squat).toBeEnabled({ timeout: 15_000 });
+    await page.locator('.pick').nth(1).click();
+    await squat.click();
+    await squat.click();
+    await page.locator('.pick').nth(0).click();
+    await squat.click();
+    await expect(squat).toBeDisabled({ timeout: 15_000 });
+  }
+  await expect(page.getByRole('heading', { name: 'Player 2 wins!' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('.scoreboard')).toContainText('4 pts');
+});

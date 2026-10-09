@@ -1,29 +1,61 @@
-import { Art } from '../Art.js';
-import { ASSETS } from '../assets.js';
 import { useEffect, useState } from 'react';
 import { BigButton, PlayerTag } from '@fieldday/ui';
+import { Art } from '../Art.js';
+import { ASSETS, type BadgeKey } from '../assets.js';
 import { db, type ResultRecord } from '../db.js';
 import { go } from '../router.js';
+import { useApp } from '../store.js';
 import { Screen } from './Layout.js';
 
 export function Results({ id }: { id: number }) {
   const [r, setR] = useState<ResultRecord | null | undefined>(undefined);
+  const [clipUrl, setClipUrl] = useState<string | null>(null);
+  const [clipBlob, setClipBlob] = useState<Blob | null>(null);
+  const series = useApp((s) => s.series);
+
   useEffect(() => {
+    let url: string | null = null;
     db()
       .results.get(id)
-      .then((x) => setR(x ?? null))
+      .then(async (x) => {
+        setR(x ?? null);
+        if (x?.clipId) {
+          const c = await db().clips.get(x.clipId);
+          if (c) {
+            url = URL.createObjectURL(c.blob);
+            setClipUrl(url);
+            setClipBlob(c.blob);
+          }
+        }
+      })
       .catch(() => setR(null));
+    return () => {
+      if (url) URL.revokeObjectURL(url);
+    };
   }, [id]);
 
   if (r === undefined) return <Screen title="Results">Loading…</Screen>;
   if (r === null) return <Screen title="Results">That result was not found.</Screen>;
 
   const won = r.winners.length > 0;
+  const minutes = Math.max(1, Math.round((r.durationMs ?? 0) / 60000));
   const order = r.players.map((_, i) => i);
+  const shareClip = async () => {
+    if (!clipBlob) return;
+    const file = new File([clipBlob], `fieldday-${r.specId}.${clipBlob.type.includes('mp4') ? 'mp4' : 'webm'}`, { type: clipBlob.type });
+    if (navigator.canShare?.({ files: [file] })) await navigator.share({ files: [file], title: r.title });
+    else {
+      const a = document.createElement('a');
+      a.href = clipUrl!;
+      a.download = file.name;
+      a.click();
+    }
+  };
+
   return (
     <Screen title={r.title}>
       <div className="results">
-        <Art className="results__mascot" asset={won ? ASSETS.mascot.cheer : ASSETS.mascot.miss} size={220} />
+        <Art className="results__mascot" asset={won ? ASSETS.mascot.cheer : ASSETS.mascot.miss} size={200} />
         <h2 className="results__headline">
           {won ? `${r.winners.map((w) => r.players[w]).join(' & ')} ${r.winners.length > 1 ? 'win' : 'wins'}!` : 'No winner this time'}
         </h2>
@@ -37,9 +69,50 @@ export function Results({ id }: { id: number }) {
             </li>
           ))}
         </ol>
-        <BigButton tone="green" icon="↻" onClick={() => go({ name: 'setup', id: r.specId })}>
-          Play again
-        </BigButton>
+
+        {r.screenTimePct !== undefined ? (
+          <div className="card card--green stack">
+            <span className="sticker sticker--white">Screen-Time Meter</span>
+            <p className="display" style={{ fontSize: '1.3rem' }}>
+              You played {minutes} min. Screen time: {Math.round(r.screenTimePct)}%.
+            </p>
+            {r.outside ? <p className="note">🌳 Counted as outside play.</p> : null}
+          </div>
+        ) : null}
+
+        {r.badges?.length ? (
+          <div className="card card--yellow stack" role="status">
+            <h3>New badge{r.badges.length > 1 ? 's' : ''}!</h3>
+            <div className="badge-grid">
+              {r.badges.map((b) => (
+                <div key={b} className="badge">
+                  <Art asset={ASSETS.badges[b as BadgeKey]} size={96} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {clipUrl ? (
+          <div className="stack">
+            <span className="sticker">Highlight</span>
+            <video className="card" style={{ padding: 0, width: '100%' }} src={clipUrl} controls playsInline loop />
+            <BigButton tone="yellow" icon="↗" onClick={() => void shareClip()}>
+              Share clip
+            </BigButton>
+            <p className="note">The clip is only on this phone until you share it.</p>
+          </div>
+        ) : null}
+
+        {series && (r.format === 'koth' || r.format === 'tournament') ? (
+          <BigButton tone="green" icon="▶" onClick={() => go({ name: 'bracket' })}>
+            {r.format === 'koth' ? 'King of the Hill: next' : 'Tournament: next'}
+          </BigButton>
+        ) : (
+          <BigButton tone="green" icon="↻" onClick={() => go({ name: 'setup', id: r.specId === 'custom' ? 'draft' : r.specId })}>
+            Play again
+          </BigButton>
+        )}
         <BigButton tone="ghost" onClick={() => go({ name: 'home' })}>
           Home
         </BigButton>

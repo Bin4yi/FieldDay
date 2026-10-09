@@ -3,8 +3,12 @@ import { ASSETS } from '../assets.js';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { createGame, type GameEngine, type RefereeMoment } from '@fieldday/engine';
 import { BigButton, BigNumber, PlayerTag } from '@fieldday/ui';
-import { db, saveResult } from '../db.js';
+import { chaosFor } from '@fieldday/engine';
+import { ClipRecorder } from '../clips.js';
+import { finishGame } from '../finish.js';
 import { eventWord, formatValue, scoreMeasure, scoreUnit } from '../gameInfo.js';
+import { ScreenTimeMeter } from '../screenTime.js';
+import { watchShake } from '../vision/camera.js';
 import { extraLine, refereeText } from '@fieldday/brain';
 import { go, href } from '../router.js';
 import { speak, stopSpeaking } from '../speech.js';
@@ -33,6 +37,11 @@ export function Play() {
   const [values, setValues] = useState<Record<string, number>>({});
   const [volt, setVolt] = useState<MascotKey>('whistle');
   const [hit, setHit] = useState(0);
+  const meter = useRef(new ScreenTimeMeter());
+  const clip = useRef<ClipRecorder | null>(null);
+  const bestThrow = useRef(0);
+  const brightSamples = useRef<number[]>([]);
+  const chaosRound = useRef(-1);
 
   if (session && !engineRef.current) {
     engineRef.current = createGame(session.spec, {
@@ -57,23 +66,35 @@ export function Play() {
       const pose = voltFor(moments, session.spec.mode === 'boss_raid');
       if (pose) setVolt(pose);
       if (moments.some((m) => m.kind === 'boss_hit')) setHit((h) => h + 1);
+      for (const m of moments) {
+        if (m.kind === 'score') {
+          if (m.measure === 'height_m' && m.value !== undefined && m.event === 'ball_apex') bestThrow.current = Math.max(bestThrow.current, m.value);
+          clip.current?.mark(m.value ?? m.points);
+        }
+        if (m.kind === 'new_best' || m.kind === 'boss_defeated') clip.current?.mark(1e6);
+      }
       const over = moments.find((m) => m.kind === 'game_over');
       if (over && !saved.current) {
         saved.current = true;
-        const r = game.result();
-        void saveResult(db(), {
-          specId: session.spec.id ?? 'custom',
-          code: session.spec.id ?? 'custom',
-          title: session.spec.title,
-          players: session.players,
-          totals: r.totals,
-          winners: r.winners,
-          unit: scoreUnit(session.spec),
-          startedAt: startedAt.current,
-          finishedAt: Date.now(),
-        })
-          .then((id) => setTimeout(() => go({ name: 'results', id }), 2500))
-          .catch(() => setLine('Game over! (Could not save the result on this phone.)'));
+        const t = now();
+        meter.current.stop(t);
+        const bright = brightSamples.current;
+        const avgBright = bright.length ? bright.reduce((a, b) => a + b, 0) / bright.length : 0;
+        const outside = useApp.getState().settings.outside || avgBright > 110;
+        void (async () => {
+          const blob = (await clip.current?.finish()) ?? null;
+          const id = await finishGame({
+            session,
+            game,
+            startedAt: startedAt.current,
+            durationMs: meter.current.duration(t),
+            screenFraction: meter.current.fraction(t),
+            outside,
+            clip: blob,
+            bestThrowM: bestThrow.current,
+          });
+          setTimeout(() => go({ name: 'results', id }), 2000);
+        })().catch(() => setLine('Game over! (Could not save the result on this phone.)'));
       }
       if (game.state.phase === 'between_turns') setCountdown(COUNTDOWN);
       rerender();
@@ -86,7 +107,17 @@ export function Play() {
     if (countdown === null || !game) return;
     if (countdown === 0) {
       setCountdown(null);
-      handle(game.state.phase === 'ready' ? game.start(now()) : game.beginTurn(now()));
+      const fmt = session?.format;
+      // Chaos Mode: a new rule at the start of every round.
+      if (fmt?.kind === 'chaos' && game.state.round !== chaosRound.current) {
+        chaosRound.current = game.state.round;
+        const { spec: next, mutation } = chaosFor(fmt.base, game.state.round, fmt.seed);
+        handle(game.setSpec(next, now(), mutation.text));
+      }
+      if (game.state.phase === 'ready') {
+        meter.current.begin(now());
+        handle(game.start(now()));
+      } else handle(game.beginTurn(now()));
       return;
     }
     if (voice) speak(String(countdown), { interrupt: countdown === COUNTDOWN && game.state.phase === 'ready' });
@@ -116,6 +147,18 @@ export function Play() {
 
   useEffect(() => () => stopSpeaking(), []);
 
+  // Screen-Time Meter: touches and picking the phone up.
+  useEffect(() => {
+    const onTouch = () => meter.current.touch(now());
+    window.addEventListener('pointerdown', onTouch);
+    const stop = watchShake((v) => meter.current.motion(now(), v));
+    return () => {
+      window.removeEventListener('pointerdown', onTouch);
+      stop();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const vision = useVision({
     mode: session?.camera ?? 'off',
     spec: session?.spec ?? null,
@@ -127,12 +170,33 @@ export function Play() {
     lineY: session?.lineY ?? null,
     mic: true,
     activePlayer: () => (game && game.isTurnMode ? game.state.turnPlayer : null),
+    onFrame: (_f, st) => {
+      if (st.brightness !== null && brightSamples.current.length < 2000) brightSamples.current.push(st.brightness);
+    },
     onEvents: (events) => {
       if (!game || game.state.phase !== 'playing') return;
       const moments = events.flatMap((e) => game.dispatch(e));
       if (moments.length) handle(moments);
     },
   });
+
+  // Highlight clips once the camera runs.
+  useEffect(() => {
+    if (vision.status !== 'running' || clip.current || !ClipRecorder.supported()) return;
+    const c = new ClipRecorder(
+      () => vision.videoRef.current,
+      () => vision.canvasRef.current,
+    );
+    c.start();
+    clip.current = c;
+    return undefined;
+  }, [vision.status, vision.videoRef, vision.canvasRef]);
+  useEffect(
+    () => () => {
+      void clip.current?.finish();
+    },
+    [],
+  );
 
   if (!session || !game) {
     return (
@@ -171,6 +235,7 @@ export function Play() {
   };
 
   const lowTime = left !== null && left <= 3;
+  clip.current?.setLabel(`${spec.title} · ${players.map((p, i) => `${p} ${formatValue(game.total(i), measure)}`).join('  ')}`);
   const pad = (
     <section className="pad" aria-label="Tap what happened">
       <h2>Tap what happened{turnMode ? '' : ` (for ${players[picked]})`}</h2>
@@ -251,7 +316,7 @@ export function Play() {
             <Art
               key={hit}
               className={`boss__img ${s.bossHp === 0 ? 'is-down' : hit ? 'is-hit' : ''}`}
-              asset={bossAsset(spec.boss.hp)}
+              asset={bossAsset(spec.boss.name)}
               size={130}
             />
             <div
@@ -324,9 +389,9 @@ export function Play() {
   );
 }
 
-function bossAsset(hp: number) {
-  if (hp >= 300) return ASSETS.bosses.megaBall;
-  if (hp >= 200) return ASSETS.bosses.stormCloud;
+function bossAsset(name: string) {
+  if (/mega|ball/i.test(name)) return ASSETS.bosses.megaBall;
+  if (/storm|cloud/i.test(name)) return ASSETS.bosses.stormCloud;
   return ASSETS.bosses.thunderRock;
 }
 

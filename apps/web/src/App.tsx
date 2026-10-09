@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { useRoute } from './router.js';
 import { useApp } from './store.js';
+import { BracketScreen } from './screens/Bracket.js';
 import { BrainStats } from './screens/BrainStats.js';
+import { Me } from './screens/Me.js';
 import { FieldCheck } from './screens/FieldCheck.js';
 import { Say } from './screens/Say.js';
 import { GameSetup } from './screens/GameSetup.js';
@@ -32,6 +34,10 @@ export function App() {
       return <FieldCheck />;
     case 'say':
       return <Say />;
+    case 'bracket':
+      return <BracketScreen />;
+    case 'me':
+      return <Me />;
     case 'stats':
       return <BrainStats />;
     case 'results':

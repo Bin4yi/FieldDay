@@ -23,8 +23,22 @@ export interface ResultRecord {
   unit: string;
   startedAt: number;
   finishedAt: number;
-  /** % of the session the screen was touched/looked at (Screen-Time Meter, Phase 4). */
+  /** % of the session the screen was touched/looked at (Screen-Time Meter). */
   screenTimePct?: number;
+  durationMs?: number;
+  /** Played outside (the "I'm outside" toggle, or a bright daylight camera). */
+  outside?: boolean;
+  /** Format the game was part of: chaos, koth, tournament, quest… */
+  format?: string;
+  /** XP from a quest step, added to this result. */
+  questXp?: number;
+  badges?: string[];
+  clipId?: number;
+}
+
+export interface BadgeRecord {
+  id: string;
+  earnedAt: number;
 }
 
 export interface SettingRow {
@@ -65,6 +79,7 @@ export type FieldDayDB = Dexie & {
   ghosts: EntityTable<GhostRecord, 'id'>;
   clips: EntityTable<ClipRecord, 'id'>;
   brainLogs: EntityTable<BrainLogRecord, 'id'>;
+  badges: EntityTable<BadgeRecord, 'id'>;
 };
 
 export function openDb(name = 'fieldday'): FieldDayDB {
@@ -78,6 +93,7 @@ export function openDb(name = 'fieldday'): FieldDayDB {
     clips: '++id, resultId, createdAt',
     brainLogs: '++id, brain, op, startedAt',
   });
+  db.version(2).stores({ badges: '&id, earnedAt' });
   return db;
 }
 

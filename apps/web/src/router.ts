@@ -9,6 +9,8 @@ export type Route =
   | { name: 'play' }
   | { name: 'check' }
   | { name: 'say' }
+  | { name: 'bracket' }
+  | { name: 'me' }
   | { name: 'stats' }
   | { name: 'results'; id: number }
   | { name: 'history' }
@@ -27,6 +29,10 @@ export function parseRoute(hash: string): Route {
       return { name: 'check' };
     case 'say':
       return { name: 'say' };
+    case 'bracket':
+      return { name: 'bracket' };
+    case 'me':
+      return { name: 'me' };
     case 'stats':
       return { name: 'stats' };
     case 'results': {

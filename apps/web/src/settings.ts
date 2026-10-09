@@ -10,6 +10,8 @@ export interface Settings {
   kidsMode: boolean;
   voice: boolean;
   batterySaver: boolean;
+  /** "I'm outside" toggle for the Outside Score. */
+  outside: boolean;
   /** Names used last time, so setup is quick. */
   playerNames: string[];
   /** Player height in metres, by name (for calibration). */
@@ -22,6 +24,7 @@ export const DEFAULT_SETTINGS: Settings = {
   kidsMode: false,
   voice: true,
   batterySaver: false,
+  outside: true,
   playerNames: ['Player 1', 'Player 2'],
   heights: {},
 };
