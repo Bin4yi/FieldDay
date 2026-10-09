@@ -3,7 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit" },
-  "dependencies": { "@fieldday/engine": "workspace:*" }
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "fixtures": "tsx scripts/make-fixtures.ts"
+  },
+  "dependencies": {
+    "@fieldday/engine": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  }
 }
