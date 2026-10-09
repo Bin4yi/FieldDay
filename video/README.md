@@ -3,7 +3,7 @@
 A 2:12 promo for YouTube (1920×1080, 30 fps), built with [HyperFrames](https://hyperframes.heygen.com)
 from the clips in `/videos`.
 
-- Final file: `fieldday-promo/renders/fieldday-promo-1080p.mp4`
+- Final file: `fieldday-promo/renders/fieldday-promo-youtube.mp4` (H.264 + AAC, loudness -14 LUFS for YouTube)
 - Composition: `fieldday-promo/index.html` (one file, one GSAP timeline)
 - Plan: `fieldday-promo/BRIEF.md`, `fieldday-promo/STORYBOARD.md`
 
