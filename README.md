@@ -16,6 +16,14 @@ The AI never writes code. It only fills in a **Game Spec**: JSON built from fixe
 **Open Mode works with zero internet**: the brain (Gemma), speech to text (Whisper), body and ball
 tracking (MediaPipe) all run on the phone.
 
+## Two hackathons
+
+- **DEV Hacktoberfest Week 1 ("Touch Grass")**: the git tag `v0.1-devto` is the submission. Open
+  Mode only: Gemma (open-weight, on the phone) is the core; everything works offline.
+- **Hack47 OFFGRID**: online multiplayer and Boost Mode (OpenAI) are added on top.
+
+> **Commits after the `v0.1-devto` tag (October 2026) were made for Hack47 OFFGRID.**
+
 ## What you can do
 
 - **Say a game** by voice (or type it). The brain designs it, checks it is safe and that the camera

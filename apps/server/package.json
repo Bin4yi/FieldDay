@@ -14,7 +14,8 @@
     "@fieldday/quests": "workspace:*",
     "@hono/node-server": "^2.1.4",
     "hono": "^4.13.13",
-    "ws": "8.22.0"
+    "ws": "8.22.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/ws": "8.18.2",

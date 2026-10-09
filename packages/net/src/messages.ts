@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { EventTypeSchema, GameSpecSchema, MeasureSchema } from '@fieldday/engine';
+import { QuestSpecSchema } from '@fieldday/quests';
 
 // Messages between phones and the server. Video never goes over the network:
 // only small game events like {player, event, measure, t}.
@@ -36,7 +37,10 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('start_match'), countdown_s: z.number().int().min(3).max(30).default(5) }),
   z.object({ type: z.literal('game_event'), event: NetGameEventSchema }),
   z.object({ type: z.literal('crowd_vote'), round: z.number().int().min(0), player: PlayerIdSchema }),
-  z.object({ type: z.literal('quest_progress'), questId: z.string().min(1).max(60), amount: z.number().finite() }),
+  z.object({ type: z.literal('quest_progress'), questId: z.string().min(1).max(60), amount: z.number().finite().min(0).max(100000) }),
+  z.object({ type: z.literal('watch_shared'), questId: z.string().min(1).max(60) }),
+  z.object({ type: z.literal('set_quest'), quest: QuestSpecSchema }),
+  z.object({ type: z.literal('quest_step'), step: z.number().int().min(0).max(20), done: z.boolean().default(false) }),
   z.object({ type: z.literal('time_sync'), clientT: z.number() }),
   z.object({ type: z.literal('ping') }),
 ]);
@@ -56,17 +60,36 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
     host: PlayerIdSchema,
     players: z.array(RoomPlayerSchema),
     spec: GameSpecSchema.nullable(),
+    quest: QuestSpecSchema.nullable().default(null),
+    started: z.boolean().default(false),
   }),
   z.object({ type: z.literal('match_start'), startAt: z.number() }),
   z.object({ type: z.literal('game_event'), event: NetGameEventSchema, serverSeq: z.number().int().min(0) }),
   z.object({
     type: z.literal('score_update'),
-    scores: z.array(z.object({ player: PlayerIdSchema, total: z.number().nullable(), flagged: z.boolean() })),
+    scores: z.array(
+      z.object({
+        player: PlayerIdSchema,
+        name: NameSchema,
+        total: z.number().nullable(),
+        flagged: z.boolean(),
+        done: z.boolean().default(false),
+      }),
+    ),
+    bossHp: z.number().nullable().default(null),
+  }),
+  z.object({ type: z.literal('match_over'), winners: z.array(PlayerIdSchema) }),
+  z.object({ type: z.literal('flagged'), player: PlayerIdSchema, reason: z.string().max(200) }),
+  z.object({
+    type: z.literal('quest_timeline'),
+    players: z.array(z.object({ player: PlayerIdSchema, name: NameSchema, step: z.number().int(), done: z.boolean(), at: z.number() })),
+    winner: PlayerIdSchema.nullable(),
   }),
   z.object({ type: z.literal('crowd_votes'), round: z.number().int(), votes: z.record(PlayerIdSchema, z.number()) }),
   z.object({
     type: z.literal('quest_progress'),
     questId: z.string(),
+    title: z.string().max(60).default(''),
     total: z.number(),
     target: z.number(),
   }),
