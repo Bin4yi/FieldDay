@@ -1,0 +1,58 @@
+{
+ "template": "sprint_tap",
+ "description": "Must touch \"far\" before \"home\". Touching home first does nothing. Timeout adds 60 s.",
+ "steps": [
+  {
+   "type": "touch_object",
+   "t": 4000,
+   "target": "far"
+  },
+  {
+   "type": "touch_object",
+   "t": 9200,
+   "target": "home"
+  },
+  {
+   "type": "touch_object",
+   "t": 9500,
+   "target": "home"
+  },
+  {
+   "type": "touch_object",
+   "t": 13000,
+   "target": "far"
+  },
+  {
+   "type": "touch_object",
+   "t": 18700,
+   "target": "home"
+  },
+  {
+   "type": "touch_object",
+   "t": 22000,
+   "target": "far"
+  },
+  {
+   "tick": 48700
+  },
+  {
+   "type": "touch_object",
+   "t": 52000,
+   "target": "far"
+  },
+  {
+   "type": "touch_object",
+   "t": 57300,
+   "target": "home"
+  }
+ ],
+ "expect": {
+  "winners": [
+   1
+  ],
+  "totals": [
+   9.2,
+   8.6
+  ]
+ }
+}

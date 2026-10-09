@@ -1,0 +1,54 @@
+{
+ "template": "reaction_race",
+ "description": "Lowest total time wins. False start and a timeout add penalty time.",
+ "steps": [
+  {
+   "type": "hands_up",
+   "t": 350
+  },
+  {
+   "type": "hands_up",
+   "t": 650
+  },
+  {
+   "type": "hands_up",
+   "t": 700
+  },
+  {
+   "type": "hands_up",
+   "t": 980
+  },
+  {
+   "type": "hands_up",
+   "t": 1290
+  },
+  {
+   "tick": 4290
+  },
+  {
+   "type": "hands_up",
+   "t": 4600
+  },
+  {
+   "type": "hands_up",
+   "t": 4850
+  },
+  {
+   "type": "hands_up",
+   "t": 5150
+  },
+  {
+   "type": "hands_up",
+   "t": 5420
+  }
+ ],
+ "expect": {
+  "winners": [
+   0
+  ],
+  "totals": [
+   2270,
+   4100
+  ]
+ }
+}

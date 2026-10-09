@@ -1,0 +1,92 @@
+{
+ "template": "mirror_me",
+ "description": "Seed 7 gives calls: hands_up, hands_up, jump, lean_right, lean_left, lean_left. Wrong moves during a call lose a point.",
+ "seed": 7,
+ "steps": [
+  {
+   "type": "squat",
+   "t": 1200,
+   "player": 1
+  },
+  {
+   "type": "hands_up",
+   "t": 1500,
+   "player": 0
+  },
+  {
+   "type": "hands_up",
+   "t": 2000,
+   "player": 1
+  },
+  {
+   "type": "hands_up",
+   "t": 6500,
+   "player": 0
+  },
+  {
+   "type": "hands_up",
+   "t": 6700,
+   "player": 1
+  },
+  {
+   "type": "hands_up",
+   "t": 6900,
+   "player": 0
+  },
+  {
+   "type": "jump",
+   "t": 11600,
+   "player": 1
+  },
+  {
+   "type": "lean_right",
+   "t": 16500,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 16600,
+   "player": 1
+  },
+  {
+   "type": "lean_left",
+   "t": 21500,
+   "player": 0
+  },
+  {
+   "type": "lean_left",
+   "t": 21600,
+   "player": 1
+  },
+  {
+   "type": "lean_left",
+   "t": 25500,
+   "player": 1
+  },
+  {
+   "type": "lean_left",
+   "t": 26500,
+   "player": 0
+  },
+  {
+   "tick": 30000
+  }
+ ],
+ "expect": {
+  "winners": [
+   0
+  ],
+  "totals": [
+   5,
+   2
+  ],
+  "calls": [
+   "hands_up",
+   "hands_up",
+   "jump",
+   "lean_right",
+   "lean_left",
+   "lean_left"
+  ]
+ }
+}

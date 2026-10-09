@@ -1,0 +1,81 @@
+{
+ "template": "freeze_statue",
+ "description": "3 players, 3 lives. Freezing before the call does not count. Last one standing wins.",
+ "players": [
+  "A",
+  "B",
+  "C"
+ ],
+ "steps": [
+  {
+   "type": "freeze",
+   "t": 3000,
+   "player": 2
+  },
+  {
+   "type": "freeze",
+   "t": 6000,
+   "player": 0
+  },
+  {
+   "type": "freeze",
+   "t": 7000,
+   "player": 1
+  },
+  {
+   "tick": 10000
+  },
+  {
+   "type": "freeze",
+   "t": 15500,
+   "player": 0
+  },
+  {
+   "type": "freeze",
+   "t": 16000,
+   "player": 2
+  },
+  {
+   "tick": 20000
+  },
+  {
+   "type": "freeze",
+   "t": 25200,
+   "player": 0
+  },
+  {
+   "tick": 30000
+  },
+  {
+   "type": "freeze",
+   "t": 35500,
+   "player": 2
+  },
+  {
+   "tick": 40000
+  },
+  {
+   "type": "freeze",
+   "t": 45100,
+   "player": 0
+  },
+  {
+   "tick": 50000
+  }
+ ],
+ "expect": {
+  "winners": [
+   0
+  ],
+  "lives": [
+   2,
+   0,
+   0
+  ],
+  "moments": {
+   "out": 2,
+   "life_lost": 7,
+   "call": 5
+  }
+ }
+}

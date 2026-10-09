@@ -1,0 +1,231 @@
+{
+ "template": "boss_raid_basic",
+ "description": "Co-op. P1 jumps during FREEZE and loses a shield. Boss falls on the last jump.",
+ "steps": [
+  {
+   "type": "jump",
+   "t": 1000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 1500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 2000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 2500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 3000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 3500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 4000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 4500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 5000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 5500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 6000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 6500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 7000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 7500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 8000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 8500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 9000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 9500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 10000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 10500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 16000,
+   "player": 1
+  },
+  {
+   "type": "freeze",
+   "t": 16500,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 19000,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 19500,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 20000,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 20500,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 21000,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 21500,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 22000,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 22500,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 23000,
+   "player": 0
+  },
+  {
+   "type": "punch",
+   "t": 23500,
+   "player": 0
+  },
+  {
+   "type": "jump",
+   "t": 24000,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 24500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 25000,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 25500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 26000,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 26500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 27000,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 27500,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 28000,
+   "player": 1
+  },
+  {
+   "type": "jump",
+   "t": 28500,
+   "player": 1
+  }
+ ],
+ "expect": {
+  "winners": [
+   0,
+   1
+  ],
+  "bossHp": 0,
+  "lives": [
+   3,
+   2
+  ],
+  "moments": {
+   "boss_defeated": 1,
+   "call": 1
+  }
+ }
+}

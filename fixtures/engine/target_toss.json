@@ -1,0 +1,92 @@
+{
+ "template": "target_toss",
+ "description": "Only the \"goal\" target scores. One void round and one timeout.",
+ "steps": [
+  {
+   "type": "ball_release",
+   "t": 100
+  },
+  {
+   "type": "ball_in_zone",
+   "t": 900,
+   "target": "goal"
+  },
+  {
+   "type": "ball_release",
+   "t": 1000
+  },
+  {
+   "type": "ball_bounce",
+   "t": 1800
+  },
+  {
+   "type": "ball_release",
+   "t": 2000
+  },
+  {
+   "type": "ball_in_zone",
+   "t": 2500,
+   "target": "bin"
+  },
+  {
+   "type": "ball_bounce",
+   "t": 2800
+  },
+  {
+   "type": "ball_release",
+   "t": 3000
+  },
+  {
+   "type": "ball_in_zone",
+   "t": 3500,
+   "target": "goal"
+  },
+  {
+   "type": "cross_line",
+   "t": 3600
+  },
+  {
+   "type": "ball_release",
+   "t": 3700
+  },
+  {
+   "type": "ball_in_zone",
+   "t": 4000,
+   "target": "goal"
+  },
+  {
+   "type": "ball_release",
+   "t": 4100
+  },
+  {
+   "type": "ball_in_zone",
+   "t": 4400,
+   "target": "goal"
+  },
+  {
+   "type": "ball_out_of_frame",
+   "t": 4500
+  },
+  {
+   "tick": 20000
+  },
+  {
+   "type": "ball_release",
+   "t": 20500
+  },
+  {
+   "type": "ball_in_zone",
+   "t": 21000,
+   "target": "goal"
+  }
+ ],
+ "expect": {
+  "winners": [
+   1
+  ],
+  "totals": [
+   6,
+   9
+  ]
+ }
+}

@@ -1,0 +1,104 @@
+{
+ "template": "bounce_catch",
+ "description": "Catches only count after a bounce. P1 loses the ball out of frame.",
+ "steps": [
+  {
+   "type": "ball_catch",
+   "t": 500
+  },
+  {
+   "type": "ball_bounce",
+   "t": 1000
+  },
+  {
+   "type": "ball_catch",
+   "t": 1500
+  },
+  {
+   "type": "ball_bounce",
+   "t": 2000
+  },
+  {
+   "type": "ball_catch",
+   "t": 2500
+  },
+  {
+   "type": "ball_bounce",
+   "t": 3000
+  },
+  {
+   "type": "ball_catch",
+   "t": 3500
+  },
+  {
+   "tick": 30000
+  },
+  {
+   "type": "ball_bounce",
+   "t": 31000
+  },
+  {
+   "type": "ball_catch",
+   "t": 31500
+  },
+  {
+   "type": "ball_out_of_frame",
+   "t": 32000
+  },
+  {
+   "type": "ball_bounce",
+   "t": 33000
+  },
+  {
+   "type": "ball_catch",
+   "t": 33500
+  },
+  {
+   "tick": 62000
+  },
+  {
+   "type": "ball_bounce",
+   "t": 63000
+  },
+  {
+   "type": "ball_catch",
+   "t": 63400
+  },
+  {
+   "type": "ball_bounce",
+   "t": 64000
+  },
+  {
+   "type": "ball_catch",
+   "t": 64400
+  },
+  {
+   "type": "ball_bounce",
+   "t": 65000
+  },
+  {
+   "type": "ball_catch",
+   "t": 65400
+  },
+  {
+   "type": "ball_bounce",
+   "t": 66000
+  },
+  {
+   "type": "ball_catch",
+   "t": 66400
+  },
+  {
+   "tick": 92000
+  }
+ ],
+ "expect": {
+  "winners": [
+   1
+  ],
+  "totals": [
+   4,
+   5
+  ]
+ }
+}
