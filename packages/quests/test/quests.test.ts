@@ -69,3 +69,29 @@ describe('quest runner', () => {
     expect(run.activePlayer).toBe(0);
   });
 });
+
+import { PHOTO_TASKS, dailyQuest, generateQuest } from '../src/index.js';
+
+describe('quest generator', () => {
+  it('makes valid quests of the right length for any seed', () => {
+    for (let seed = 1; seed < 60; seed++) {
+      const q = generateQuest({ seed, minutes: 5 + (seed % 40), kids: seed % 2 === 0 });
+      expect(validateQuest(q).ok).toBe(true);
+      expect(q.steps.length).toBeGreaterThanOrEqual(3);
+      for (const s of q.steps) if (s.type === 'find' && s.photo_task) expect(PHOTO_TASKS).toContain(s.photo_task);
+    }
+  });
+
+  it('daily quest is the same all day and different tomorrow', () => {
+    const a = dailyQuest(new Date('2026-10-09T08:00:00'));
+    const b = dailyQuest(new Date('2026-10-09T19:00:00'));
+    const c = dailyQuest(new Date('2026-10-10T08:00:00'));
+    expect(a).toEqual(b);
+    expect(a).not.toEqual(c);
+    expect(a.kind).toBe('daily');
+  });
+
+  it('a 20-minute quest ends with a boss', () => {
+    expect(generateQuest({ seed: 3, minutes: 20 }).steps.at(-1)?.type).toBe('boss');
+  });
+});
