@@ -192,6 +192,8 @@ const MOVE_WORDS: Record<string, string> = {
   punch: 'PUNCH',
 };
 
+const POWER_WORDS = { shield: 'SHIELD', steal: 'STEAL', freeze: 'FREEZE RAY', double: 'DOUBLE' } as const;
+
 export interface LineContext {
   names: string[];
   spec: GameSpec;
@@ -259,6 +261,15 @@ export function refereeText(m: RefereeMoment, style: RefereeStyle, ctx: LineCont
       return say('boss_defeated', { boss: ctx.spec.boss?.name ?? 'the boss' });
     case 'lead_change':
       return say('lead_change', { name: name(m.player) });
+    case 'power_up':
+      return say('power_up', { name: name(m.player), move: POWER_WORDS[m.power] });
+    case 'power_used':
+      if (m.power === 'steal' && m.target !== undefined) return `${name(m.player)} steals 5 from ${name(m.target)}!`;
+      if (m.power === 'freeze' && m.target !== undefined) return `${name(m.target)} is frozen: next score counts half!`;
+      if (m.power === 'shield') return `Shield! ${name(m.player)} is safe!`;
+      return `Double points for ${name(m.player)}!`;
+    case 'rule_change':
+      return m.text;
     case 'game_over':
       if (ctx.spec.win_condition === 'co_op') {
         return m.winners.length ? null : say('boss_survived', { boss: ctx.spec.boss?.name ?? 'the boss' });

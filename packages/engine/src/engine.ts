@@ -1,4 +1,4 @@
-import type { EventType, Measure, Penalty } from './blocks.js';
+import type { EventType, Measure, Penalty, PowerUpType } from './blocks.js';
 import { evalCondition, type ConditionContext } from './condition.js';
 import type { GameEvent } from './events.js';
 import type { EventMatch, GameSpec } from './spec.js';
@@ -42,6 +42,9 @@ export type RefereeMoment =
   | { kind: 'boss_defeated'; t: number }
   | { kind: 'lead_change'; t: number; player: number }
   | { kind: 'turn_end'; t: number; round: number; player: number | null }
+  | { kind: 'power_up'; t: number; player: number; power: PowerUpType }
+  | { kind: 'power_used'; t: number; player: number; power: PowerUpType; target?: number }
+  | { kind: 'rule_change'; t: number; text: string }
   | { kind: 'game_over'; t: number; winners: number[]; winningTeams: string[] };
 
 export type MomentKind = RefereeMoment['kind'];
@@ -63,6 +66,12 @@ export interface PlayerState {
   out: boolean;
   disqualified: boolean;
   stats: PlayerStats;
+  /** Unused power-ups (shield, double). */
+  powers: PowerUpType[];
+  /** A rival froze this player: their next score counts half. */
+  halfNext: boolean;
+  /** How many times each event happened this game (for earning power-ups). */
+  eventCounts: Partial<Record<EventType, number>>;
 }
 
 export type Phase = 'ready' | 'playing' | 'between_turns' | 'finished';
@@ -105,7 +114,7 @@ function matches(m: { event: EventType; target?: string | undefined }, ev: { typ
 }
 
 export class GameEngine {
-  readonly spec: GameSpec;
+  private _spec: GameSpec;
   private s: EngineState;
   private readonly rng: () => number;
   private readonly autoAdvance: boolean;
@@ -122,7 +131,7 @@ export class GameEngine {
   readonly log: RefereeMoment[] = [];
 
   constructor(spec: GameSpec, opts: EngineOptions = {}) {
-    this.spec = spec;
+    this._spec = spec;
     this.rng = mulberry32(opts.seed ?? 1);
     this.autoAdvance = opts.autoAdvance ?? false;
     const players: PlayerState[] = Array.from({ length: spec.players }, (_, i) => ({
@@ -133,6 +142,9 @@ export class GameEngine {
       out: false,
       disqualified: false,
       stats: { count: 0, best: {}, fouls: 0 },
+      powers: [],
+      halfNext: false,
+      eventCounts: {},
     }));
     this.s = {
       phase: 'ready',
@@ -150,6 +162,27 @@ export class GameEngine {
 
   get state(): Readonly<EngineState> {
     return this.s;
+  }
+
+  get spec(): GameSpec {
+    return this._spec;
+  }
+
+  /**
+   * Change the rules mid-game (Chaos Mode, Rule Draft). Only between turns or
+   * before the game starts. The player count must stay the same.
+   */
+  setSpec(next: GameSpec, t: number, text?: string): RefereeMoment[] {
+    if (this.s.phase === 'playing' || this.s.phase === 'finished') return [];
+    if (next.players !== this._spec.players) throw new Error('setSpec cannot change the number of players');
+    for (const p of this.s.players) {
+      while (p.rounds.length < next.rounds) p.rounds.push(null);
+      p.rounds.length = Math.max(next.rounds, this.s.round + 1);
+    }
+    this._spec = next;
+    const out: RefereeMoment[] = text ? [{ kind: 'rule_change', t, text }] : [];
+    this.emit(out);
+    return out;
   }
 
   get isTurnMode(): boolean {
@@ -345,8 +378,13 @@ export class GameEngine {
     };
 
     let endTurn = false;
+    this.earnPowerUps(player, ev, out);
     const foul = this.spec.fouls.find((f) => matches(f, ev) && evalCondition(f.condition, ctx));
-    if (foul) {
+    const shielded = foul && foul.penalty !== 'end_turn' && foul.penalty !== 'disqualify' && this.usePower(ps, 'shield');
+    if (foul && shielded) {
+      ps.stats.fouls++;
+      out.push({ kind: 'power_used', t: ev.t, player, power: 'shield' });
+    } else if (foul) {
       ps.stats.fouls++;
       out.push({
         kind: 'foul',
@@ -399,6 +437,16 @@ export class GameEngine {
         }
         const mult = this.spec.handicaps?.find((h) => h.player === player)?.multiplier ?? 1;
         pts *= mult;
+        if (this.powersApply) {
+          if (this.usePower(ps, 'double')) {
+            pts *= 2;
+            out.push({ kind: 'power_used', t: ev.t, player, power: 'double' });
+          }
+          if (ps.halfNext) {
+            ps.halfNext = false;
+            pts /= 2;
+          }
+        }
         if (rule.once_per_turn) this.scoredOnce.add(key);
         ps.stats.count++;
         this.scoredThisTurn.add(player);
@@ -453,6 +501,49 @@ export class GameEngine {
         this.finished.add(player);
         if (this.activePlayers().length === 0) this.endTurn(ev.t, out);
       }
+    }
+  }
+
+  /** Power-ups only make sense when more points is better. */
+  private get powersApply(): boolean {
+    return !!this.spec.power_ups?.length && this.spec.win_condition !== 'lowest';
+  }
+
+  private usePower(ps: PlayerState, power: PowerUpType): boolean {
+    const i = ps.powers.indexOf(power);
+    if (i < 0) return false;
+    ps.powers.splice(i, 1);
+    return true;
+  }
+
+  private earnPowerUps(player: number, ev: GameEvent, out: RefereeMoment[]) {
+    const ps = this.s.players[player]!;
+    if (ev.type === 'timer_end') return;
+    const n = (ps.eventCounts[ev.type] ?? 0) + 1;
+    ps.eventCounts[ev.type] = n;
+    if (!this.powersApply) return;
+    for (const pu of this.spec.power_ups ?? []) {
+      if (pu.earn.event !== ev.type || n % pu.earn.count !== 0) continue;
+      out.push({ kind: 'power_up', t: ev.t, player, power: pu.type });
+      if (pu.type === 'shield' || pu.type === 'double') {
+        ps.powers.push(pu.type);
+        continue;
+      }
+      // Steal and Freeze hit the leader (not yourself).
+      const target = this.standings().find((x) => x.player !== player && x.total !== null && !this.s.players[x.player]!.out);
+      if (!target) continue;
+      const tp = this.s.players[target.player]!;
+      if (pu.type === 'steal') {
+        const amount = Math.min(5, Math.max(0, target.total ?? 0));
+        if (amount <= 0) continue;
+        let r = tp.rounds.length - 1;
+        while (r >= 0 && tp.rounds[r] === null) r--;
+        if (r >= 0) tp.rounds[r] = (tp.rounds[r] ?? 0) - amount;
+        this.addRoundScore(player, amount);
+      } else {
+        tp.halfNext = true;
+      }
+      out.push({ kind: 'power_used', t: ev.t, player, power: pu.type, target: target.player });
     }
   }
 
