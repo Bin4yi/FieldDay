@@ -1,8 +1,8 @@
 import 'fake-indexeddb/auto';
 import { describe, expect, it } from 'vitest';
-import { createGame, getTemplate } from '@fieldday/engine';
+import { getTemplate } from '@fieldday/engine';
 import { openDb, personalBest, saveResult } from '../src/db.js';
-import { describeMoment, formatValue, scoreUnit } from '../src/gameInfo.js';
+import { formatValue, scoreUnit } from '../src/gameInfo.js';
 import { href, parseRoute } from '../src/router.js';
 import { loadSettings, saveSetting, DEFAULT_SETTINGS } from '../src/settings.js';
 import { padButtons } from '../src/tapPad.js';
@@ -50,22 +50,6 @@ describe('tap pad', () => {
 });
 
 describe('game words', () => {
-  it('describes moments in plain words', () => {
-    const spec = getTemplate('sky_toss')!;
-    const g = createGame(spec, { autoAdvance: true });
-    const names = ['Binula', 'Ama'];
-    const lines = [
-      ...g.start(0),
-      ...g.dispatch({ type: 'ball_release', t: 1 }),
-      ...g.dispatch({ type: 'ball_apex', t: 2, measures: { height_m: 2.4 } }),
-      ...g.dispatch({ type: 'ball_catch', t: 3 }),
-    ]
-      .map((m) => describeMoment(m, names, spec))
-      .filter(Boolean);
-    expect(lines).toContain('Binula: 2.40 metres!');
-    expect(lines).toContain('Ama, you\'re up. Score to beat: 2.40 metres.');
-  });
-
   it('formats units', () => {
     expect(scoreUnit(getTemplate('sky_toss')!)).toBe('m');
     expect(scoreUnit(getTemplate('squat_storm')!)).toBe('pts');

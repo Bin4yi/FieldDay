@@ -5,7 +5,8 @@ import type { FieldDayDB } from './db.js';
 
 export interface Settings {
   brainMode: BrainMode;
-  refereeStyle: RefereeStyle;
+  /** 'auto' = each game's own style. */
+  refereeStyle: RefereeStyle | 'auto';
   kidsMode: boolean;
   voice: boolean;
   batterySaver: boolean;
@@ -17,7 +18,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   brainMode: DEFAULT_BRAIN_MODE,
-  refereeStyle: 'football_announcer',
+  refereeStyle: 'auto',
   kidsMode: false,
   voice: true,
   batterySaver: false,

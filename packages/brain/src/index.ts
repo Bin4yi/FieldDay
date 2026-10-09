@@ -9,3 +9,4 @@ export * from './prompts.js';
 export * from './design.js';
 export * from './gemma.js';
 export * from './router.js';
+export * from './stats.js';

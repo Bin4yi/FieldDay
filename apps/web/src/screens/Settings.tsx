@@ -1,11 +1,13 @@
 import { REFEREE_STYLES, type RefereeStyle } from '@fieldday/engine';
 import type { BrainMode } from '@fieldday/brain';
 import { useApp } from '../store.js';
+import { href } from '../router.js';
+import { GemmaPanel, OfflinePack } from './BrainPanel.js';
 import { Screen } from './Layout.js';
 
 const MODES: { id: BrainMode; label: string; help: string }[] = [
   { id: 'open', label: 'Open Mode', help: 'Gemma on your phone. Works with no internet.' },
-  { id: 'boost', label: 'Boost Mode', help: 'OpenAI online, falls back to Gemma. (Coming later)' },
+  { id: 'boost', label: 'Boost Mode', help: 'OpenAI online (needs the FieldDay server), falls back to Gemma.' },
   { id: 'auto', label: 'Auto', help: 'Boost when online, Open when not.' },
 ];
 
@@ -41,12 +43,27 @@ export function SettingsScreen() {
       </fieldset>
 
       <fieldset className="field">
+        <legend>Gemma model</legend>
+        <GemmaPanel />
+      </fieldset>
+
+      <fieldset className="field">
+        <legend>Offline pack</legend>
+        <OfflinePack />
+      </fieldset>
+
+      <a className="fd-btn fd-btn--ghost" href={href({ name: 'stats' })}>
+        <span>📊 Brain Stats</span>
+      </a>
+
+      <fieldset className="field">
         <legend>Referee style</legend>
         <select
           aria-label="Referee style"
           value={settings.refereeStyle}
-          onChange={(e) => set('refereeStyle', e.target.value as RefereeStyle)}
+          onChange={(e) => set('refereeStyle', e.target.value as RefereeStyle | 'auto')}
         >
+          <option value="auto">Auto (each game’s own style)</option>
           {REFEREE_STYLES.map((s) => (
             <option key={s} value={s}>
               {STYLE_NAMES[s]}

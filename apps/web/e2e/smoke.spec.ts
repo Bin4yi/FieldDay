@@ -55,3 +55,37 @@ test('demo camera referees Jump Battle end to end (no taps)', async ({ page }) =
   await expect(page.getByRole('heading', { name: 'Ama wins!' })).toBeVisible({ timeout: 90_000 });
   await expect(page.locator('.scoreboard')).toContainText(' m');
 });
+
+test('Phase 3: in airplane mode, a spoken/typed game becomes a playable, refereed game', async ({ page, context }) => {
+  await page.goto('/');
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready;
+  });
+  await page.reload();
+  await context.setOffline(true);
+  await page.getByRole('link', { name: /Say a game/ }).click();
+  await page.getByRole('textbox', { name: /Say a game/ }).fill('highest throw battle, 3 rounds, 2 players');
+  await page.getByRole('button', { name: 'Make my game' }).click();
+  await expect(page.getByRole('heading', { name: 'Sky Toss Showdown' })).toBeVisible();
+  await expect(page.getByText('Made offline from your words')).toBeVisible();
+  await page.getByRole('button', { name: 'Play it' }).click();
+  await page.getByRole('textbox', { name: 'Player 1 name' }).fill('Binula');
+  await page.getByRole('textbox', { name: 'Player 2 name' }).fill('Ama');
+  await page.getByRole('button', { name: 'Tap mode' }).click();
+  const apex = page.getByRole('button', { name: 'Top of throw' });
+  const heights = ['2.1', '2.3', '2.6', '1.9', '2.2', '2.4'];
+  for (const h of heights) {
+    await expect(apex).toBeEnabled({ timeout: 10_000 });
+    await page.getByRole('spinbutton').fill(h);
+    await apex.click();
+    await page.getByRole('button', { name: 'Catch', exact: true }).click();
+  }
+  await expect(page.getByRole('heading', { name: 'Binula wins!' })).toBeVisible({ timeout: 10_000 });
+});
+
+test('model runtimes are served locally (no CDN needed)', async ({ request }) => {
+  for (const path of ['/mediapipe/vision/vision_wasm_internal.wasm', '/mediapipe/genai/genai_wasm_internal.wasm', '/ort/ort-wasm-simd-threaded.jsep.wasm']) {
+    const r = await request.head(path);
+    expect(r.status(), path).toBe(200);
+  }
+});

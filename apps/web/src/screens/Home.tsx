@@ -1,6 +1,5 @@
 import { Art } from '../Art.js';
 import { ASSETS } from '../assets.js';
-import { useState } from 'react';
 import { LANDING } from '../edition.js';
 import { href } from '../router.js';
 import { OfflineBadge } from './OfflineBadge.js';
@@ -13,7 +12,6 @@ const TILES = [
 ];
 
 export function Home() {
-  const [note, setNote] = useState<string | null>(null);
   return (
     <div className="screen screen--park home">
       <section className="hero">
@@ -32,20 +30,13 @@ export function Home() {
       </div>
 
       <main className="screen__body">
-        <button
-          type="button"
-          className="mic-button"
-          onClick={() => setNote('Voice games arrive in the next build. Pick a Quick Game for now!')}
-          aria-describedby="mic-note"
-        >
+        <a className="mic-button" href={href({ name: 'say' })}>
           <span className="mic-button__icon" aria-hidden="true">
             🎤
           </span>
-          Say a game
-        </button>
-        <p id="mic-note" className="note" role="status">
-          {note ?? 'Example: “highest throw battle, 3 rounds, 2 players”'}
-        </p>
+          <span>Say a game</span>
+        </a>
+        <p className="note">Example: “highest throw battle, 3 rounds, 2 players”</p>
 
         <nav className="tiles" aria-label="Main menu">
           {TILES.map((t) =>

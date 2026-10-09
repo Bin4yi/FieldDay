@@ -8,6 +8,8 @@ export type Route =
   | { name: 'setup'; id: string }
   | { name: 'play' }
   | { name: 'check' }
+  | { name: 'say' }
+  | { name: 'stats' }
   | { name: 'results'; id: number }
   | { name: 'history' }
   | { name: 'settings' };
@@ -23,6 +25,10 @@ export function parseRoute(hash: string): Route {
       return { name: 'play' };
     case 'check':
       return { name: 'check' };
+    case 'say':
+      return { name: 'say' };
+    case 'stats':
+      return { name: 'stats' };
     case 'results': {
       const id = Number(parts[1]);
       return Number.isInteger(id) ? { name: 'results', id } : { name: 'history' };

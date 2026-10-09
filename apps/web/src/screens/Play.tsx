@@ -4,7 +4,8 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { createGame, type GameEngine, type RefereeMoment } from '@fieldday/engine';
 import { BigButton, BigNumber, PlayerTag } from '@fieldday/ui';
 import { db, saveResult } from '../db.js';
-import { describeMoment, eventWord, formatValue, scoreMeasure, scoreUnit } from '../gameInfo.js';
+import { eventWord, formatValue, scoreMeasure, scoreUnit } from '../gameInfo.js';
+import { extraLine, refereeText } from '@fieldday/brain';
 import { go, href } from '../router.js';
 import { speak, stopSpeaking } from '../speech.js';
 import { useApp } from '../store.js';
@@ -17,6 +18,10 @@ const COUNTDOWN = 3;
 export function Play() {
   const session = useApp((s) => s.session);
   const voice = useApp((s) => s.settings.voice);
+  const kids = useApp((s) => s.settings.kidsMode);
+  const styleSetting = useApp((s) => s.settings.refereeStyle);
+  const style = styleSetting === 'auto' ? (session?.spec.referee_style ?? 'football_announcer') : styleSetting;
+  const lastHydrate = useRef(Date.now());
   const engineRef = useRef<GameEngine | null>(null);
   const t0 = useRef(performance.now());
   const startedAt = useRef(Date.now());
@@ -41,7 +46,10 @@ export function Play() {
   const handle = useCallback(
     (moments: RefereeMoment[]) => {
       if (!session || !game) return;
-      const lines = moments.map((m) => describeMoment(m, session.players, session.spec)).filter((x): x is string => !!x);
+      const lines = moments
+        .map((m) => refereeText(m, style, { names: session.players, spec: session.spec, kids }))
+        .filter((x): x is string => !!x);
+      if (moments.some((m) => m.kind === 'game_start')) lines.push('Check there is free space around you.');
       if (lines.length) {
         setLine(lines.at(-1)!);
         if (voice) speak(lines.join(' '));
@@ -70,7 +78,7 @@ export function Play() {
       if (game.state.phase === 'between_turns') setCountdown(COUNTDOWN);
       rerender();
     },
-    [game, session, voice],
+    [game, session, voice, style, kids],
   );
 
   // Countdown before the game and between turns.
@@ -90,13 +98,21 @@ export function Play() {
   useEffect(() => {
     if (!game) return;
     const id = setInterval(() => {
+      // Heat & hydration: every 15 minutes of play, a water break.
+      if (Date.now() - lastHydrate.current > 15 * 60 * 1000 && game.state.phase !== 'finished') {
+        lastHydrate.current = Date.now();
+        const text = extraLine('hydrate', style, {}, kids);
+        setLine(text);
+        setVolt('hydrate');
+        if (voice) speak(text);
+      }
       if (game.state.phase !== 'playing') return;
       const m = game.tick(now());
       if (m.length) handle(m);
       else rerender();
     }, 100);
     return () => clearInterval(id);
-  }, [game, handle]);
+  }, [game, handle, style, kids, voice]);
 
   useEffect(() => () => stopSpeaking(), []);
 

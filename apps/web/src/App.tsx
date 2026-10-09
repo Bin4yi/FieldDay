@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { useRoute } from './router.js';
 import { useApp } from './store.js';
+import { BrainStats } from './screens/BrainStats.js';
 import { FieldCheck } from './screens/FieldCheck.js';
+import { Say } from './screens/Say.js';
 import { GameSetup } from './screens/GameSetup.js';
 import { History } from './screens/History.js';
 import { Home } from './screens/Home.js';
@@ -28,6 +30,10 @@ export function App() {
       return <Play />;
     case 'check':
       return <FieldCheck />;
+    case 'say':
+      return <Say />;
+    case 'stats':
+      return <BrainStats />;
     case 'results':
       return <Results id={route.id} />;
     case 'history':
