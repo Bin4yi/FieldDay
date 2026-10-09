@@ -14,9 +14,9 @@ We also live in a place where many parks have weak or no mobile signal. So Field
 
 **FieldDay turns your phone into a referee for real games outside.**
 
-1. **🗣️ Say a game.** For example: *"highest throw battle, 3 rounds, 2 players."* FieldDay makes the game, checks that it is safe, and reads the rules out loud.
-2. **📱 Put the phone down.** Lean it on a bag. A quick **Field Check** makes sure the phone is steady, the light is good, it can see your whole body and the ball, and the space is clear.
-3. **⚽ Play!** The camera follows your body and the ball. It measures how high you throw and jump, keeps the score, and shouts like a sports announcer: *"Two point four metres! Massive!"*
+1. **Say a game.** For example: *"highest throw battle, 3 rounds, 2 players."* FieldDay makes the game, checks that it is safe, and reads the rules out loud.
+2. **Put the phone down.** Lean it on a bag. A quick **Field Check** makes sure the phone is steady, the light is good, it can see your whole body and the ball, and the space is clear.
+3. **Play!** The camera follows your body and the ball. It measures how high you throw and jump, keeps the score, and shouts like a sports announcer: *"Two point four metres! Massive!"*
 
 ### Features
 
@@ -86,12 +86,12 @@ The **promo video** was made with HyperFrames, a Kokoro AI voice, music written 
 
 ## Accomplishments that we're proud of
 
-- ✈️ **It works with no internet.** You can say a game and have it made and refereed, all in airplane mode.
-- 🔒 **Privacy first.** Video never leaves the phone. Online games only send small score messages.
-- 🛡️ **The AI can't break the game**, thanks to the Game Spec and the rules engine.
-- 🎉 **Fun for groups.** Boss Raid, Freeze, Chaos Mode and quests get everyone moving together.
-- ✅ **Well tested:** 165 unit tests, 26 browser tests, and no accessibility errors on the 14 main screens.
-- 🌱 **A real Touch Grass meter** that shows how little you looked at the screen.
+- **It works with no internet.** You can say a game and have it made and refereed, all in airplane mode.
+- **Privacy first.** Video never leaves the phone. Online games only send small score messages.
+- **The AI can't break the game**, thanks to the Game Spec and the rules engine.
+- **Fun for groups.** Boss Raid, Freeze, Chaos Mode and quests get everyone moving together.
+- **Well tested:** 165 unit tests, 26 browser tests, and no accessibility errors on the 14 main screens.
+- **A real Touch Grass meter** that shows how little you looked at the screen.
 
 ## What we learned
 
@@ -102,8 +102,8 @@ The **promo video** was made with HyperFrames, a Kokoro AI voice, music written 
 
 ## What's next for FieldDay
 
-- 📏 **Test outside on real phones.** We will check jump and throw heights against a tape measure on normal Android phones, and use real recordings to make the tests better.
-- 🎲 **More games and quests**, plus game codes that people can share.
-- 🗣️ **More voices and languages**, including Sinhala and Tamil.
-- 🏫 **Schools and clubs:** a teacher mode for PE classes, with simple class challenges.
-- ⚡ **A smaller, faster brain**, so older phones can run Gemma too.
+- **Test outside on real phones.** We will check jump and throw heights against a tape measure on normal Android phones, and use real recordings to make the tests better.
+- **More games and quests**, plus game codes that people can share.
+- **More voices and languages**, including Sinhala and Tamil.
+- **Schools and clubs:** a teacher mode for PE classes, with simple class challenges.
+- **A smaller, faster brain**, so older phones can run Gemma too.
