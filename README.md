@@ -4,7 +4,6 @@
 
 ![FieldDay: friends playing in a park with Volt the referee](assets/screens/hero_banner.png)
 
-<p align="center"><img src="docs/demo.gif" alt="Demo camera: a simulated player throws, the referee measures and scores" width="300"></p>
 
 FieldDay turns a phone into a voice-first referee for real outdoor games, battles and quests.
 Say a game ("highest throw battle, 3 rounds, 2 players"), lean the phone on a bag, and play with
