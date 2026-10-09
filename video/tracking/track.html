@@ -1,0 +1,24 @@
+<!doctype html><html><body><canvas id="c"></canvas><script type="module">
+import { FilesetResolver, PoseLandmarker, ObjectDetector } from './vision_bundle.mjs';
+window.run = async (clip, n) => {
+  const fs = await FilesetResolver.forVisionTasks('./wasm');
+  const pose = await PoseLandmarker.createFromOptions(fs, { baseOptions: { modelAssetPath: './models/pose.task', delegate: 'CPU' }, runningMode: 'VIDEO', numPoses: 3, minPoseDetectionConfidence: 0.4, minTrackingConfidence: 0.4 });
+  const det = await ObjectDetector.createFromOptions(fs, { baseOptions: { modelAssetPath: './models/det.tflite', delegate: 'CPU' }, runningMode: 'VIDEO', scoreThreshold: 0.2, maxResults: 5, categoryAllowlist: ['sports ball', 'person'] });
+  const out = [];
+  for (let i = 1; i <= n; i++) {
+    const img = new Image();
+    img.src = `./frames/${clip}/${String(i).padStart(4, '0')}.jpg`;
+    await img.decode();
+    const ts = (i - 1) * 1000 / 24;
+    const p = pose.detectForVideo(img, ts);
+    const d = det.detectForVideo(img, ts + 0.5);
+    out.push({
+      t: Math.round(ts),
+      poses: p.landmarks.map((lm) => lm.map((q) => [Math.round(q.x * 1280 * 10) / 10, Math.round(q.y * 720 * 10) / 10, Math.round((q.visibility ?? 1) * 100) / 100])),
+      objects: d.detections.map((x) => ({ label: x.categories[0].categoryName, score: Math.round(x.categories[0].score * 100) / 100, box: [x.boundingBox.originX, x.boundingBox.originY, x.boundingBox.width, x.boundingBox.height] })),
+    });
+  }
+  return out;
+};
+window.ready = true;
+</script></body></html>

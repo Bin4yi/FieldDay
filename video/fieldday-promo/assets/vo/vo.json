@@ -1,0 +1,107 @@
+{
+ "n01": {
+  "text": "Every great game starts the same way. A field. A ball. And your friends.",
+  "voice": "af_heart",
+  "duration": 4.565
+ },
+ "n02": {
+  "text": "Not a screen.",
+  "voice": "af_heart",
+  "duration": 1.067
+ },
+ "n03": {
+  "text": "Meet FieldDay.",
+  "voice": "af_heart",
+  "duration": 1.131
+ },
+ "n04": {
+  "text": "Say any game. Play it outside. Your phone is the referee.",
+  "voice": "af_heart",
+  "duration": 3.563
+ },
+ "n05": {
+  "text": "Just say what you want to play.",
+  "voice": "af_heart",
+  "duration": 1.579
+ },
+ "n06": {
+  "text": "FieldDay designs the game, checks that it's safe, and reads you the rules.",
+  "voice": "af_heart",
+  "duration": 4.139
+ },
+ "n07": {
+  "text": "Then put the phone down.",
+  "voice": "af_heart",
+  "duration": 1.387
+ },
+ "n08": {
+  "text": "It watches every throw. Every jump. And measures it.",
+  "voice": "af_heart",
+  "duration": 3.2
+ },
+ "n09": {
+  "text": "Turn battles. Team battles. Chaos mode.",
+  "voice": "af_heart",
+  "duration": 2.773
+ },
+ "n10": {
+  "text": "Or team up, and take down a boss.",
+  "voice": "af_heart",
+  "duration": 2.027
+ },
+ "n11": {
+  "text": "Quests send you across the park. Race to the biggest tree. Find something red.",
+  "voice": "af_heart",
+  "duration": 4.352
+ },
+ "n12": {
+  "text": "Your phone checks the photo, right on the device.",
+  "voice": "af_heart",
+  "duration": 2.688
+ },
+ "n13": {
+  "text": "Challenge friends in another city, live. Only the score travels. Your video never leaves your phone.",
+  "voice": "af_heart",
+  "duration": 5.717
+ },
+ "n14": {
+  "text": "No signal? No problem. The brain runs right on your phone.",
+  "voice": "af_heart",
+  "duration": 3.627
+ },
+ "n15": {
+  "text": "You played thirty four minutes.",
+  "voice": "af_heart",
+  "duration": 1.6
+ },
+ "n16": {
+  "text": "Screen time. Four percent.",
+  "voice": "af_heart",
+  "duration": 1.92
+ },
+ "n17": {
+  "text": "FieldDay. Go play.",
+  "voice": "af_heart",
+  "duration": 1.515
+ },
+ "r01": {
+  "text": "Two point four metres! Massive!",
+  "voice": "am_fenrir",
+  "duration": 1.792
+ },
+ "r02": {
+  "text": "New personal best!",
+  "voice": "am_fenrir",
+  "duration": 1.003
+ },
+ "r03": {
+  "text": "Everybody... freeze!",
+  "voice": "am_fenrir",
+  "duration": 1.109
+ },
+ "r04": {
+  "text": "Photo check passed!",
+  "voice": "am_fenrir",
+  "duration": 1.088
+ }
+}
