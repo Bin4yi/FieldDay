@@ -1,21 +1,23 @@
+import { Art } from '../Art.js';
+import { ASSETS } from '../assets.js';
 import { useState } from 'react';
 import { LANDING } from '../edition.js';
 import { href } from '../router.js';
 import { OfflineBadge } from './OfflineBadge.js';
 
 const TILES = [
-  { to: href({ name: 'games' }), icon: 'img/icons/mode_turn_battle.webp', label: 'Quick Games', ready: true },
-  { to: '#', icon: 'img/icons/mode_quest.webp', label: 'Quests', ready: false },
-  { to: '#', icon: 'img/icons/mode_duel.webp', label: 'Battle Room', ready: false },
-  { to: href({ name: 'history' }), icon: 'img/icons/mode_tournament.webp', label: 'Results', ready: true },
+  { to: href({ name: 'games' }), icon: ASSETS.modes.turn_battle, label: 'Quick Games', ready: true },
+  { to: '#', icon: ASSETS.modes.quest, label: 'Quests', ready: false },
+  { to: '#', icon: ASSETS.modes.duel, label: 'Battle Room', ready: false },
+  { to: href({ name: 'history' }), icon: ASSETS.modes.tournament, label: 'Results', ready: true },
 ];
 
 export function Home() {
   const [note, setNote] = useState<string | null>(null);
   return (
-    <div className="screen home">
+    <div className="screen screen--park home">
       <section className="hero">
-        <img className="hero__img" src="img/screens/hero_banner.webp" alt="" />
+        <Art className="hero__img" asset={ASSETS.screens.hero} decorative />
         <div className="hero__text">
           <h1 className="logo">FieldDay</h1>
           <p className="hero__tagline">{LANDING.tagline}</p>
@@ -23,6 +25,11 @@ export function Home() {
           <OfflineBadge />
         </div>
       </section>
+      <div className="tape" aria-hidden="true">
+        <span className="tape__inner">
+          {'★ PUT THE PHONE DOWN ★ PLAY OUTSIDE ★ THE PHONE IS THE REFEREE '.repeat(6)}
+        </span>
+      </div>
 
       <main className="screen__body">
         <button
@@ -44,12 +51,12 @@ export function Home() {
           {TILES.map((t) =>
             t.ready ? (
               <a key={t.label} className="tile" href={t.to}>
-                <img src={t.icon} alt="" width={96} height={96} />
+                <Art asset={t.icon} size={96} decorative />
                 <span>{t.label}</span>
               </a>
             ) : (
               <span key={t.label} className="tile tile--soon" aria-disabled="true">
-                <img src={t.icon} alt="" width={96} height={96} />
+                <Art asset={t.icon} size={96} decorative />
                 <span>{t.label}</span>
                 <small>Coming soon</small>
               </span>

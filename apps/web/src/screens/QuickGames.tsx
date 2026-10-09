@@ -1,3 +1,4 @@
+import { Art } from '../Art.js';
 import { TEMPLATES } from '@fieldday/engine';
 import { modeIcon } from '../gameInfo.js';
 import { href } from '../router.js';
@@ -10,7 +11,7 @@ export function QuickGames() {
         {TEMPLATES.map((t) => (
           <li key={t.id}>
             <a className="game-card" href={href({ name: 'setup', id: t.id! })}>
-              <img src={modeIcon(t)} alt="" width={72} height={72} />
+              <Art asset={modeIcon(t)} size={72} decorative />
               <span className="game-card__text">
                 <strong>{t.title}</strong>
                 <span>{t.one_line_rules}</span>

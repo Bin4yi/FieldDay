@@ -1,21 +1,16 @@
 import type { EventType, GameSpec, Measure, RefereeMoment } from '@fieldday/engine';
+import { ASSETS, type Asset } from './assets.js';
 
 // Small helpers to show and say game things in plain words.
 
-const MODE_ICON: Record<string, string> = {
-  solo: 'mode_solo',
-  turn_battle: 'mode_turn_battle',
-  duel: 'mode_duel',
-  team: 'mode_team',
-  boss_raid: 'mode_boss_raid',
-  rule_draft: 'mode_rule_draft',
-  chaos: 'mode_chaos',
-  king_of_the_hill: 'mode_king_hill',
-  tournament: 'mode_tournament',
-};
+export function modeIcon(spec: GameSpec): Asset {
+  return ASSETS.modes[spec.mode ?? 'solo'];
+}
 
-export function modeIcon(spec: GameSpec): string {
-  return `img/icons/${MODE_ICON[spec.mode ?? 'solo'] ?? 'mode_solo'}.webp`;
+/** Volt's intro pose for a game card. */
+export function introMascot(spec: GameSpec): Asset {
+  if (spec.mode === 'boss_raid') return ASSETS.mascot.bossFight;
+  return spec.trackers.includes('ball') ? ASSETS.mascot.throw : ASSETS.mascot.jump;
 }
 
 /** The measure that becomes the score, if the score is a measurement. */

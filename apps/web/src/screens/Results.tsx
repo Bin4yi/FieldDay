@@ -1,3 +1,5 @@
+import { Art } from '../Art.js';
+import { ASSETS } from '../assets.js';
 import { useEffect, useState } from 'react';
 import { BigButton, PlayerTag } from '@fieldday/ui';
 import { db, type ResultRecord } from '../db.js';
@@ -21,13 +23,7 @@ export function Results({ id }: { id: number }) {
   return (
     <Screen title={r.title}>
       <div className="results">
-        <img
-          className="results__mascot"
-          src={won ? 'img/mascot/volt_cheer.webp' : 'img/mascot/volt_miss.webp'}
-          alt=""
-          width={220}
-          height={220}
-        />
+        <Art className="results__mascot" asset={won ? ASSETS.mascot.cheer : ASSETS.mascot.miss} size={220} />
         <h2 className="results__headline">
           {won ? `${r.winners.map((w) => r.players[w]).join(' & ')} ${r.winners.length > 1 ? 'win' : 'wins'}!` : 'No winner this time'}
         </h2>

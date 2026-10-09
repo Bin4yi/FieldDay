@@ -1,7 +1,8 @@
+import { Art } from '../Art.js';
 import { useState } from 'react';
 import { getTemplate, withPlayers } from '@fieldday/engine';
 import { BigButton } from '@fieldday/ui';
-import { modeIcon } from '../gameInfo.js';
+import { introMascot } from '../gameInfo.js';
 import { go, href } from '../router.js';
 import { speak } from '../speech.js';
 import { useApp } from '../store.js';
@@ -38,7 +39,7 @@ export function GameSetup({ id }: { id: string }) {
   return (
     <Screen title={template.title}>
       <div className="setup">
-        <img className="setup__icon" src={modeIcon(template)} alt="" width={120} height={120} />
+        <Art className="setup__icon" asset={introMascot(template)} size={180} decorative />
         <p className="rules">{template.one_line_rules}</p>
         <BigButton tone="ghost" icon="🔊" onClick={() => speak(template.one_line_rules, { interrupt: true })}>
           Hear the rules

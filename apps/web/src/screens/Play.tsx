@@ -1,3 +1,5 @@
+import { Art } from '../Art.js';
+import { ASSETS } from '../assets.js';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { createGame, type GameEngine, type RefereeMoment } from '@fieldday/engine';
 import { BigButton, BigNumber, PlayerTag } from '@fieldday/ui';
@@ -154,7 +156,7 @@ export function Play() {
       <main className="screen__body play__body">
         {spec.boss && s.bossHp !== null ? (
           <div className="boss">
-            <img src="img/bosses/boss_thunder_rock.webp" alt="" width={140} height={140} />
+            <Art asset={ASSETS.bosses.thunderRock} size={140} />
             <div className="hp" role="meter" aria-label={`${spec.boss.name} health`} aria-valuemin={0} aria-valuemax={spec.boss.hp} aria-valuenow={s.bossHp}>
               <div className="hp__fill" style={{ width: `${(100 * s.bossHp) / spec.boss.hp}%` }} />
               <span>
