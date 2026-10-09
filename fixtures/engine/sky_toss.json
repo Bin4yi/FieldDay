@@ -1,0 +1,118 @@
+{
+ "template": "sky_toss",
+ "description": "2 players, 3 throws. P0 steps over the line before throwing in round 2.",
+ "players": [
+  "Binula",
+  "Ama"
+ ],
+ "steps": [
+  {
+   "type": "ball_release",
+   "t": 1000
+  },
+  {
+   "type": "ball_apex",
+   "t": 1500,
+   "measures": {
+    "height_m": 2.1
+   }
+  },
+  {
+   "type": "ball_catch",
+   "t": 2500
+  },
+  {
+   "type": "ball_release",
+   "t": 3500
+  },
+  {
+   "type": "ball_apex",
+   "t": 4000,
+   "measures": {
+    "height_m": 2.6
+   }
+  },
+  {
+   "type": "ball_catch",
+   "t": 5000
+  },
+  {
+   "type": "cross_line",
+   "t": 5500
+  },
+  {
+   "type": "ball_release",
+   "t": 6000
+  },
+  {
+   "type": "ball_apex",
+   "t": 6500,
+   "measures": {
+    "height_m": 1.8
+   }
+  },
+  {
+   "type": "ball_bounce",
+   "t": 7500
+  },
+  {
+   "type": "ball_release",
+   "t": 8000
+  },
+  {
+   "type": "ball_apex",
+   "t": 8500,
+   "measures": {
+    "height_m": 3.0
+   }
+  },
+  {
+   "type": "ball_catch",
+   "t": 9500
+  },
+  {
+   "type": "ball_release",
+   "t": 10000
+  },
+  {
+   "type": "cross_line",
+   "t": 10200
+  },
+  {
+   "type": "ball_apex",
+   "t": 10500,
+   "measures": {
+    "height_m": 2.9
+   }
+  },
+  {
+   "type": "ball_apex",
+   "t": 10600,
+   "measures": {
+    "height_m": 3.5
+   }
+  },
+  {
+   "type": "ball_catch",
+   "t": 11000
+  }
+ ],
+ "expect": {
+  "winners": [
+   0
+  ],
+  "totals": [
+   3.0,
+   2.9
+  ],
+  "fouls": [
+   1,
+   0
+  ],
+  "moments": {
+   "foul": 1,
+   "game_over": 1,
+   "turn_start": 6
+  }
+ }
+}

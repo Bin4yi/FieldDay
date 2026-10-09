@@ -1,0 +1,46 @@
+# Render blueprint: the FieldDay server (rooms, crews, OpenAI proxy) and the PWA.
+services:
+  - type: web
+    name: fieldday-server
+    runtime: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile
+    startCommand: pnpm --filter @fieldday/server start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22.22.0
+      - key: ALLOWED_ORIGINS
+        sync: false # e.g. https://fieldday-web.onrender.com
+      - key: DATABASE_FILE
+        value: /var/data/fieldday.sqlite
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_DESIGN_MODEL
+        sync: false
+      - key: OPENAI_VISION_MODEL
+        sync: false
+      - key: OPENAI_REALTIME_MODEL
+        sync: false
+    disk:
+      name: fieldday-data
+      mountPath: /var/data
+      sizeGB: 1
+  - type: web
+    name: fieldday-web
+    runtime: static
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @fieldday/web build
+    staticPublishPath: apps/web/dist
+    envVars:
+      - key: VITE_SERVER_URL
+        sync: false # e.g. https://fieldday-server.onrender.com
+      - key: VITE_EDITION
+        value: hack47
+    headers:
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(self), microphone=(self)
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

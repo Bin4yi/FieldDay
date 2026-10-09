@@ -1,0 +1,158 @@
+{
+ "template": "squat_storm",
+ "description": "30 second squat race. A squat after the whistle is ignored.",
+ "steps": [
+  {
+   "type": "squat",
+   "t": 1000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 1500,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 3000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 3300,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 5000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 5100,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 6900,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 7000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 8700,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 9000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 10500,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 11000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 12300,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 13000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 14100,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 15000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 15900,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 17000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 17700,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 19000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 19500,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 21000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 21300,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 23000,
+   "player": 0
+  },
+  {
+   "type": "squat",
+   "t": 23100,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 24900,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 26700,
+   "player": 1
+  },
+  {
+   "type": "squat",
+   "t": 30500,
+   "player": 1
+  },
+  {
+   "tick": 31000
+  }
+ ],
+ "expect": {
+  "winners": [
+   1
+  ],
+  "totals": [
+   12,
+   15
+  ]
+ }
+}

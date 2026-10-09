@@ -1,0 +1,123 @@
+{
+ "template": "keepy_uppy",
+ "description": "Best round counts. Turn ends when the ball drops.",
+ "steps": [
+  {
+   "type": "ball_apex",
+   "t": 100
+  },
+  {
+   "type": "ball_apex",
+   "t": 200
+  },
+  {
+   "type": "ball_apex",
+   "t": 300
+  },
+  {
+   "type": "ball_apex",
+   "t": 400
+  },
+  {
+   "type": "ball_apex",
+   "t": 500
+  },
+  {
+   "type": "ball_bounce",
+   "t": 600
+  },
+  {
+   "type": "ball_apex",
+   "t": 700
+  },
+  {
+   "type": "ball_apex",
+   "t": 800
+  },
+  {
+   "type": "ball_apex",
+   "t": 900
+  },
+  {
+   "type": "ball_apex",
+   "t": 1000
+  },
+  {
+   "type": "ball_apex",
+   "t": 1100
+  },
+  {
+   "type": "ball_apex",
+   "t": 1200
+  },
+  {
+   "type": "ball_apex",
+   "t": 1300
+  },
+  {
+   "type": "ball_bounce",
+   "t": 1400
+  },
+  {
+   "type": "ball_apex",
+   "t": 1500
+  },
+  {
+   "type": "ball_apex",
+   "t": 1600
+  },
+  {
+   "type": "ball_apex",
+   "t": 1700
+  },
+  {
+   "type": "ball_apex",
+   "t": 1800
+  },
+  {
+   "type": "ball_apex",
+   "t": 1900
+  },
+  {
+   "type": "ball_apex",
+   "t": 2000
+  },
+  {
+   "type": "ball_apex",
+   "t": 2100
+  },
+  {
+   "type": "ball_apex",
+   "t": 2200
+  },
+  {
+   "type": "ball_apex",
+   "t": 2300
+  },
+  {
+   "type": "ball_out_of_frame",
+   "t": 2400
+  },
+  {
+   "type": "ball_apex",
+   "t": 2500
+  },
+  {
+   "type": "ball_apex",
+   "t": 2600
+  },
+  {
+   "type": "ball_bounce",
+   "t": 2800
+  }
+ ],
+ "expect": {
+  "winners": [
+   0
+  ],
+  "totals": [
+   9,
+   7
+  ]
+ }
+}

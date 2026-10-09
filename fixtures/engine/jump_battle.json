@@ -1,0 +1,88 @@
+{
+ "template": "jump_battle",
+ "description": "3 players. A jump from the wrong player is ignored. P2 times out once.",
+ "players": [
+  "A",
+  "B",
+  "C"
+ ],
+ "steps": [
+  {
+   "type": "jump",
+   "t": 1000,
+   "measures": {
+    "height_m": 0.42
+   }
+  },
+  {
+   "type": "jump",
+   "t": 1500,
+   "player": 2,
+   "measures": {
+    "height_m": 0.99
+   }
+  },
+  {
+   "type": "jump",
+   "t": 2000,
+   "measures": {
+    "height_m": 0.55
+   }
+  },
+  {
+   "type": "jump",
+   "t": 3000,
+   "measures": {
+    "height_m": 0.3
+   }
+  },
+  {
+   "type": "jump",
+   "t": 4000,
+   "measures": {
+    "height_m": 0.51
+   }
+  },
+  {
+   "type": "jump",
+   "t": 5000,
+   "measures": {
+    "height_m": 0.4
+   }
+  },
+  {
+   "tick": 15000
+  },
+  {
+   "type": "jump",
+   "t": 16000,
+   "measures": {
+    "height_m": 0.48
+   }
+  },
+  {
+   "type": "jump",
+   "t": 17000,
+   "measures": {
+    "height_m": 0.38
+   }
+  },
+  {
+   "type": "jump",
+   "t": 18000,
+   "measures": {
+    "height_m": 0.5
+   }
+  }
+ ],
+ "expect": {
+  "winners": [
+   1
+  ],
+  "totals": [
+   0.51,
+   0.55,
+   0.5
+  ]
+ }
+}

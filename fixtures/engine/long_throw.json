@@ -1,0 +1,51 @@
+{
+ "template": "long_throw",
+ "description": "Solo. Round 2 is void. Best throw counts.",
+ "players": [
+  "Solo"
+ ],
+ "steps": [
+  {
+   "type": "ball_release",
+   "t": 500
+  },
+  {
+   "type": "ball_bounce",
+   "t": 2000,
+   "measures": {
+    "distance_m": 18.5
+   }
+  },
+  {
+   "type": "cross_line",
+   "t": 2500
+  },
+  {
+   "type": "ball_release",
+   "t": 3000
+  },
+  {
+   "type": "cross_line",
+   "t": 3200
+  },
+  {
+   "type": "ball_bounce",
+   "t": 4500,
+   "measures": {
+    "distance_m": 21.2
+   }
+  }
+ ],
+ "expect": {
+  "winners": [
+   0
+  ],
+  "totals": [
+   21.2
+  ],
+  "moments": {
+   "new_best": 1,
+   "foul": 1
+  }
+ }
+}
