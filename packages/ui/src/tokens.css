@@ -1,0 +1,15 @@
+/* FieldDay design tokens. Keep in sync with tokens.ts (tested). */
+:root {
+  --fd-yellow: #ffe600;
+  --fd-green: #2bd96b;
+  --fd-navy: #0b1c3d;
+  --fd-navy-deep: #06112a;
+  --fd-navy-light: #1a2f5c;
+  --fd-coral: #ff4d3d;
+  --fd-white: #ffffff;
+  --fd-touch: 56px;
+  --fd-radius: 18px;
+  --fd-gap: 16px;
+  --fd-font-display: 'Archivo Black', 'Arial Black', system-ui, sans-serif;
+  --fd-font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
