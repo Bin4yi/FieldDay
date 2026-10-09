@@ -3,6 +3,7 @@ import { db, saveResult, type ResultRecord } from './db.js';
 import { scoreUnit } from './gameInfo.js';
 import { newBadges } from './progress.js';
 import { useApp, type Session } from './store.js';
+import { postCrewResult } from './net/online.js';
 
 // Everything that happens when a game ends: save the result, the clip and
 // new badges, and move a King of the Hill / Tournament series forward.
@@ -62,6 +63,16 @@ export async function finishGame(f: FinishInput): Promise<number> {
   } catch {
     // Badges/clips are extras: the result is already saved.
   }
+
+  // Crew leaderboard + shared goals (only online, only the phone owner = player 1).
+  const measure = session.spec.scoring.find((x) => x.points === 'measure')?.measure;
+  const best = measure ? r.players[0]?.stats.best[measure] : undefined;
+  void postCrewResult({
+    specId: session.spec.id ?? 'custom',
+    total: r.totals[0] ?? null,
+    lowerBetter: session.spec.win_condition === 'lowest',
+    best: measure && best !== undefined ? { measure, value: best } : undefined,
+  }).catch(() => undefined);
 
   // Series: winner stays on / moves up the bracket.
   const { series, setSeries } = useApp.getState();

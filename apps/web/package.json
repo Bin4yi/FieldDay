@@ -15,6 +15,7 @@
   "dependencies": {
     "@fieldday/brain": "workspace:*",
     "@fieldday/engine": "workspace:*",
+    "@fieldday/net": "workspace:*",
     "@fieldday/quests": "workspace:*",
     "@fieldday/ui": "workspace:*",
     "@fieldday/vision": "workspace:*",

@@ -9,6 +9,7 @@ import { db } from '../db.js';
 import { go, href } from '../router.js';
 import { speak } from '../speech.js';
 import { newSession, useApp } from '../store.js';
+import { online, useOnline } from '../net/online.js';
 import type { CameraMode } from '../vision/useVision.js';
 import { Screen } from './Layout.js';
 import { stepLabel } from './Quests.js';
@@ -33,8 +34,11 @@ export function QuestRunScreen() {
     [save?.quest, save?.state],
   );
 
+  const timeline = useOnline((s) => s.timeline);
+  const questWinner = useOnline((s) => s.questWinner);
   const persist = (r: QuestRun, extra: Partial<NonNullable<typeof save>> = {}) => {
     if (!save) return;
+    if (save.online) online.send({ type: 'quest_step', step: r.state.stepIndex, done: r.state.status === 'done' });
     setQuestRun({ ...save, state: r.snapshot(), offlineAll: save.offlineAll && !navigator.onLine, ...extra });
     bump((x) => x + 1);
   };
@@ -144,6 +148,18 @@ export function QuestRunScreen() {
       <div className="meter" role="progressbar" aria-valuemin={0} aria-valuemax={q.steps.length} aria-valuenow={run.state.stepIndex}>
         <div className="meter__fill" style={{ width: `${run.progress * 100}%` }} />
       </div>
+      {save.online ? (
+        <div className="card card--navy stack" aria-live="polite">
+          <span className="sticker sticker--coral">● Quest battle {save.online}</span>
+          {timeline.map((p) => (
+            <div key={p.player} className="row" style={{ justifyContent: 'space-between' }}>
+              <strong>{p.name}</strong>
+              <span className="display">{p.done ? '🏁 done' : `step ${p.step + 1}/${q.steps.length}`}</span>
+            </div>
+          ))}
+          {questWinner ? <p className="display">🏆 {timeline.find((p) => p.player === questWinner)?.name} finished first!</p> : null}
+        </div>
+      ) : null}
       <ol className="plain-list" style={{ gap: 6 }}>
         {q.steps.map((s, i) => (
           <li key={i} className={i === run.state.stepIndex ? 'sticker' : 'note'} style={i === run.state.stepIndex ? { transform: 'none' } : undefined}>

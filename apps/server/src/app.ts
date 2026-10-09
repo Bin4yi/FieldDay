@@ -99,8 +99,8 @@ export function createApp(config: ServerConfig, deps: AppDeps = {}) {
         total: z.number().finite(),
         lowerBetter: z.boolean().default(false),
         best: z.object({ measure: MeasureSchema, value: z.number().finite() }).optional(),
-        /** Optional shared quest to add this result to. */
-        sharedQuest: z.string().max(60).optional(),
+        /** Shared quests to add this result to. */
+        sharedQuests: z.array(z.string().max(60)).max(10).default([]),
       })
       .safeParse(await json(c));
     if (!body.success) return bad(c, body.error.issues[0]?.message);
@@ -119,8 +119,8 @@ export function createApp(config: ServerConfig, deps: AppDeps = {}) {
       flagged: !!reason,
       at: now(),
     });
-    if (body.data.sharedQuest && !reason) {
-      const q = store.getShared(body.data.sharedQuest);
+    for (const qid of reason ? [] : body.data.sharedQuests) {
+      const q = store.getShared(qid);
       if (q && q.owner === crew.code) {
         const add = b && b.measure === q.measure ? b.value : q.measure === 'count' ? body.data.total : 0;
         if (add > 0) {

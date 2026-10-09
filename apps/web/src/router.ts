@@ -14,6 +14,9 @@ export type Route =
   | { name: 'questNew' }
   | { name: 'quest' }
   | { name: 'scan' }
+  | { name: 'room'; code?: string }
+  | { name: 'watch'; code: string }
+  | { name: 'crew' }
   | { name: 'ghost'; code: string }
   | { name: 'questImport'; code: string }
   | { name: 'me' }
@@ -45,6 +48,12 @@ export function parseRoute(hash: string): Route {
       return { name: 'quest' };
     case 'scan':
       return { name: 'scan' };
+    case 'room':
+      return parts[1] ? { name: 'room', code: parts[1].toUpperCase() } : { name: 'room' };
+    case 'watch':
+      return parts[1] ? { name: 'watch', code: parts[1].toUpperCase() } : { name: 'room' };
+    case 'crew':
+      return { name: 'crew' };
     case 'ghost':
       return parts[1] ? { name: 'ghost', code: parts[1] } : { name: 'scan' };
     case 'q':
@@ -78,6 +87,10 @@ export function href(r: Route): string {
       return '#/quest-new';
     case 'ghost':
       return `#/ghost/${r.code}`;
+    case 'room':
+      return r.code ? `#/room/${r.code}` : '#/room';
+    case 'watch':
+      return `#/watch/${r.code}`;
     case 'questImport':
       return `#/q/${r.code}`;
     default:

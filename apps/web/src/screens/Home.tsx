@@ -7,7 +7,8 @@ import { OfflineBadge } from './OfflineBadge.js';
 const TILES = [
   { to: href({ name: 'games' }), icon: ASSETS.modes.turn_battle, label: 'Quick Games', ready: true },
   { to: href({ name: 'quests' }), icon: ASSETS.modes.quest, label: 'Quests', ready: true },
-  { to: '#', icon: ASSETS.modes.duel, label: 'Battle Room', ready: false },
+  { to: href({ name: 'room' }), icon: ASSETS.modes.duel, label: 'Battle Room', ready: true },
+  { to: href({ name: 'crew' }), icon: ASSETS.modes.shared_quest, label: 'Crew', ready: true },
   { to: href({ name: 'history' }), icon: ASSETS.modes.tournament, label: 'Results', ready: true },
   { to: href({ name: 'me' }), icon: ASSETS.badges.touch_grass, label: 'Me & Badges', ready: true },
   { to: href({ name: 'setup', id: 'boss_raid_basic' }), icon: ASSETS.modes.boss_raid, label: 'Boss Raid', ready: true },

@@ -33,6 +33,8 @@ export interface Session {
   lineY: number | null;
   /** Racing a friend's ghost. */
   ghost?: Ghost;
+  /** Online live battle: events also go to the server. */
+  online?: { code: string; startAt: number };
 }
 
 export interface QuestRunSave {
@@ -42,6 +44,8 @@ export interface QuestRunSave {
   /** Stayed offline for the whole quest (Offline Hero badge). */
   offlineAll: boolean;
   savedId?: number;
+  /** Quest battle: room code. */
+  online?: string;
 }
 
 export interface QuestGameReport {

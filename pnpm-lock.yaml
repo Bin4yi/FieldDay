@@ -57,6 +57,9 @@ importers:
       '@fieldday/engine':
         specifier: workspace:*
         version: link:../../packages/engine
+      '@fieldday/net':
+        specifier: workspace:*
+        version: link:../../packages/net
       '@fieldday/quests':
         specifier: workspace:*
         version: link:../../packages/quests

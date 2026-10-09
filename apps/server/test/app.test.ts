@@ -29,11 +29,11 @@ describe('server http', () => {
     expect(joined.members).toHaveLength(2);
 
     const sq = (await (await app.request('/shared', post({ title: 'Throw 10 metres together', measure: 'height_m', target: 10, scope: 'crew', owner: crew.code }))).json()) as { id: string };
-    const r1 = await (await app.request(`/crews/${crew.code}/results`, post({ playerId: 'p1', specId: 'sky_toss', total: 2.4, best: { measure: 'height_m', value: 2.4 }, sharedQuest: sq.id }))).json();
+    const r1 = await (await app.request(`/crews/${crew.code}/results`, post({ playerId: 'p1', specId: 'sky_toss', total: 2.4, best: { measure: 'height_m', value: 2.4 }, sharedQuests: [sq.id] }))).json();
     expect(r1).toEqual({ ok: true, flagged: null });
-    const cheat = (await (await app.request(`/crews/${crew.code}/results`, post({ playerId: 'p2', specId: 'sky_toss', total: 15, best: { measure: 'height_m', value: 15 }, sharedQuest: sq.id }))).json()) as { flagged: string };
+    const cheat = (await (await app.request(`/crews/${crew.code}/results`, post({ playerId: 'p2', specId: 'sky_toss', total: 15, best: { measure: 'height_m', value: 15 }, sharedQuests: [sq.id] }))).json()) as { flagged: string };
     expect(cheat.flagged).toMatch(/too high/);
-    await app.request(`/crews/${crew.code}/results`, post({ playerId: 'p2', specId: 'sky_toss', total: 2.1, best: { measure: 'height_m', value: 2.1 }, sharedQuest: sq.id }));
+    await app.request(`/crews/${crew.code}/results`, post({ playerId: 'p2', specId: 'sky_toss', total: 2.1, best: { measure: 'height_m', value: 2.1 }, sharedQuests: [sq.id] }));
 
     const view = (await (await app.request(`/crews/${crew.code}`)).json()) as {
       leaderboard: { specId: string; entries: { name: string; best: number }[] }[];

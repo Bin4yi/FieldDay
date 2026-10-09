@@ -12,7 +12,7 @@ import { Screen } from './Layout.js';
 export function useStartQuest() {
   const setQuestRun = useApp((s) => s.setQuestRun);
   const names = useApp((s) => s.settings.playerNames);
-  return (quest: QuestSpec, savedId?: number) => {
+  return (quest: QuestSpec, savedId?: number, onlineRoom?: string) => {
     const players = quest.kind === 'relay' ? names.slice(0, Math.max(2, quest.players ?? names.length)) : names;
     setQuestRun({
       quest,
@@ -20,6 +20,7 @@ export function useStartQuest() {
       players: players.length ? players : ['Player 1'],
       offlineAll: !navigator.onLine,
       ...(savedId !== undefined ? { savedId } : {}),
+      ...(onlineRoom ? { online: onlineRoom } : {}),
     });
     go({ name: 'quest' });
   };

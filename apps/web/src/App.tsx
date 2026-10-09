@@ -9,6 +9,8 @@ import { QuestBuilder } from './screens/QuestBuilder.js';
 import { QuestRunScreen } from './screens/QuestRun.js';
 import { QuestImport, Quests } from './screens/Quests.js';
 import { Scan } from './screens/Scan.js';
+import { BattleRoom, Watch } from './screens/BattleRoom.js';
+import { Crew } from './screens/Crew.js';
 import { FieldCheck } from './screens/FieldCheck.js';
 import { Say } from './screens/Say.js';
 import { GameSetup } from './screens/GameSetup.js';
@@ -51,6 +53,12 @@ export function App() {
       return <QuestRunScreen />;
     case 'scan':
       return <Scan />;
+    case 'room':
+      return <BattleRoom {...(route.code ? { code: route.code } : {})} />;
+    case 'watch':
+      return <Watch code={route.code} />;
+    case 'crew':
+      return <Crew />;
     case 'ghost':
       return <GhostScreen code={route.code} />;
     case 'questImport':

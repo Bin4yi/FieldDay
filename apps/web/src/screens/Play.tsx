@@ -15,6 +15,8 @@ import { go, href } from '../router.js';
 import { speak, stopSpeaking } from '../speech.js';
 import { useApp } from '../store.js';
 import { useVision } from '../vision/useVision.js';
+import { online, useOnline } from '../net/online.js';
+import type { GameEvent } from '@fieldday/engine';
 import type { MascotKey } from '../assets.js';
 import { DEFAULT_MEASURE, padButtons } from '../tapPad.js';
 
@@ -32,7 +34,11 @@ export function Play() {
   const startedAt = useRef(Date.now());
   const saved = useRef(false);
   const [, rerender] = useReducer((x: number) => x + 1, 0);
-  const [countdown, setCountdown] = useState<number | null>(COUNTDOWN);
+  // Online: count down to the shared start time, so every phone starts together.
+  const [countdown, setCountdown] = useState<number | null>(() =>
+    session?.online ? Math.max(1, Math.min(30, Math.ceil((session.online.startAt - online.serverNow()) / 1000))) : COUNTDOWN,
+  );
+  const live = useOnline((st) => (session?.online ? st : null));
   const [line, setLine] = useState('Get ready!');
   const [picked, setPicked] = useState(0);
   const [values, setValues] = useState<Record<string, number>>({});
@@ -52,6 +58,14 @@ export function Play() {
   }
   const game = engineRef.current;
   const now = () => performance.now() - t0.current;
+  /** Send an event to the engine (and to the server in a live battle). */
+  const send = (e: GameEvent) => {
+    if (!game) return [];
+    const wasPlaying = game.state.phase === 'playing';
+    const m = game.dispatch(e);
+    if (session?.online && wasPlaying) online.sendEvent(e);
+    return m;
+  };
 
   const handle = useCallback(
     (moments: RefereeMoment[]) => {
@@ -171,6 +185,17 @@ export function Play() {
 
   useEffect(() => () => stopSpeaking(), []);
 
+  // Live battle result from the server.
+  const liveWinners = live?.winners ?? null;
+  useEffect(() => {
+    if (!liveWinners || !live) return;
+    const names = liveWinners.map((w) => live.scores.find((x) => x.player === w)?.name ?? '?');
+    const text = names.length ? `Live battle over! ${names.join(' and ')} wins!` : 'Live battle over!';
+    setLine(text);
+    if (voice) speak(text);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveWinners]);
+
   // Screen-Time Meter: touches and picking the phone up.
   useEffect(() => {
     const onTouch = () => meter.current.touch(now());
@@ -199,7 +224,7 @@ export function Play() {
     },
     onEvents: (events) => {
       if (!game || game.state.phase !== 'playing') return;
-      const moments = events.flatMap((e) => game.dispatch(e));
+      const moments = events.flatMap((e) => send(e));
       if (moments.length) handle(moments);
     },
   });
@@ -248,7 +273,7 @@ export function Play() {
   const tap = (b: (typeof buttons)[number]) => {
     const v = b.measure ? (values[b.key] ?? DEFAULT_MEASURE[b.measure] ?? 1) : undefined;
     handle(
-      game.dispatch({
+      send({
         type: b.event,
         t: now(),
         ...(turnMode ? {} : { player: picked }),
@@ -375,6 +400,34 @@ export function Play() {
             {line}
           </p>
         </div>
+
+        {live && session.online ? (
+          <div className="card card--navy stack" aria-live="polite">
+            <div className="row" style={{ justifyContent: 'space-between' }}>
+              <span className="sticker sticker--coral">● LIVE {session.online.code}</span>
+              {live.bossHp !== null ? <span className="display">Boss: {live.bossHp} HP</span> : null}
+            </div>
+            <ol className="plain-list" style={{ gap: 4 }}>
+              {live.scores.map((x) => (
+                <li key={x.player} className="row" style={{ justifyContent: 'space-between' }}>
+                  <strong>
+                    {x.player === live.me ? '▶ ' : ''}
+                    {x.name}
+                    {x.flagged ? ' ⚠' : ''}
+                  </strong>
+                  <span className="display">
+                    {x.total === null ? '–' : formatValue(x.total, measure)} {x.done ? '✓' : ''}
+                  </span>
+                </li>
+              ))}
+            </ol>
+            {live.winners ? (
+              <p className="display" role="status">
+                🏆 {live.winners.map((w) => live.scores.find((x) => x.player === w)?.name ?? '?').join(' & ') || 'No winner'}
+              </p>
+            ) : null}
+          </div>
+        ) : null}
 
         <ol className="scoreboard scoreboard--compact">
           {players.map((name, i) => (
