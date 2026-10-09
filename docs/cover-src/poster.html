@@ -1,0 +1,44 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+@font-face{font-family:AB;src:url(ab.woff2)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1200px;height:800px;overflow:hidden;font-family:AB}
+.stage{position:relative;width:1200px;height:800px;overflow:hidden;background:repeating-linear-gradient(135deg,#FFE600 0 30px,#ffdd00 30px 60px)}
+.navy{position:absolute;left:560px;top:-60px;width:800px;height:940px;background:repeating-linear-gradient(135deg,#0B1C3D 0 26px,#10244b 26px 52px);transform:skewX(-8deg);border-left:8px solid #000}
+.logo{position:absolute;left:44px;top:40px;display:flex;align-items:center;gap:16px}
+.logo img{width:86px;height:86px;border:5px solid #000;border-radius:18px;box-shadow:6px 6px 0 #000}
+.logo span{font-size:76px;color:#FFE600;-webkit-text-stroke:4px #000;paint-order:stroke fill;text-shadow:8px 8px 0 #000;letter-spacing:-1px}
+.st{position:absolute;left:44px;font-size:38px;text-transform:uppercase;border:5px solid #000;box-shadow:8px 8px 0 #000;padding:10px 18px 7px;white-space:nowrap;line-height:1}
+.feat{position:absolute;left:44px;top:470px;width:470px}
+.feat div{font:700 19px 'DejaVu Sans Mono',monospace;text-transform:uppercase;letter-spacing:.5px;background:#0B1C3D;color:#fff;border:4px solid #000;box-shadow:6px 6px 0 #000;padding:9px 12px;margin-bottom:12px;display:inline-block;margin-right:8px}
+.feat div b{color:#FFE600;font-weight:700}
+.photo{position:absolute;border:6px solid #000;box-shadow:11px 11px 0 #000;overflow:hidden;background:#000}
+.photo img{width:100%;height:100%;object-fit:cover}
+.ro{position:absolute;background:#0B1C3D;color:#fff;border:5px solid #000;box-shadow:8px 8px 0 #000;padding:8px 16px 10px;z-index:3}
+.ro small{display:block;font:700 14px 'DejaVu Sans Mono',monospace;color:#FFE600;letter-spacing:1px}
+.ro b{font-size:46px;font-weight:400}
+.ro b i{font-style:normal;font-size:24px;color:#FFE600}
+.phone{position:absolute;width:190px;height:404px;border:9px solid #000;border-radius:30px;overflow:hidden;background:#000;box-shadow:11px 12px 0 rgba(0,0,0,.55)}
+.phone img{width:100%;display:block}
+.tag{position:absolute;font-size:20px;text-transform:uppercase;border:4px solid #000;padding:7px 12px 5px;box-shadow:5px 5px 0 #000;white-space:nowrap;z-index:4}
+.volt{position:absolute;left:380px;top:560px;width:250px;height:250px;z-index:5}
+</style></head><body><div class="stage">
+<div class="navy"></div>
+<div class="logo"><img src="app_icon.png"><span>FIELDDAY</span></div>
+<div class="st" style="top:170px;background:#fff;transform:rotate(-1.5deg)">Say any game.</div>
+<div class="st" style="top:242px;background:#2BD96B;transform:rotate(1deg)">Play it outside.</div>
+<div class="st" style="top:314px;background:#FF4D3D;color:#fff;transform:rotate(-1deg)">Phone = referee.</div>
+<div class="feat">
+ <div>● <b>Works offline</b></div><div>● Gemma on device</div>
+ <div>● Body + ball tracking</div><div>● Battles &amp; quests</div>
+ <div>● Video stays on the phone</div>
+</div>
+<div class="photo" style="left:610px;top:52px;width:400px;height:300px;transform:rotate(-3deg)"><img src="jump.jpg" style="object-position:50% 25%"></div>
+<div class="ro" style="left:820px;top:300px;transform:rotate(-3deg)"><small>JUMP · MEASURED</small><b>0.70 <i>m</i></b></div>
+<div class="photo" style="left:600px;top:420px;width:330px;height:186px;transform:rotate(2deg)"><img src="boss.jpg"></div>
+<div class="photo" style="left:640px;top:612px;width:270px;height:152px;transform:rotate(-2deg)"><img src="t2_3.4.jpg" style="object-position:50% 30%"></div>
+<div class="ro" style="left:800px;top:700px;transform:rotate(2deg);padding:5px 12px 7px"><small>THROW · MEASURED</small><b style="font-size:32px">2.1 <i>m</i></b></div>
+<div class="phone" style="left:985px;top:60px;transform:rotate(5deg)"><img src="say_card.png"></div>
+<div class="phone" style="left:960px;top:375px;transform:rotate(-4deg)"><img src="home_offline.png"></div>
+<div class="tag" style="left:860px;top:32px;background:#FF4D3D;color:#fff;transform:rotate(3deg)">Real tracking</div>
+<img class="volt" src="volt_cheer.png">
+</div></body></html>
