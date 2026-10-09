@@ -176,6 +176,7 @@ describe('safety', () => {
       'race across the road',
       'jump into the pool',
       'climb the tree and jump off',
+      'jump off the wall',
       'play with fireworks',
       'tackle each other',
       'blindfold tag',
@@ -193,6 +194,8 @@ describe('safety', () => {
       'jump as high as you can',
       'run to the tree and back',
       'trick shot target toss',
+      'Boosted Jump Off',
+      'a jump-off contest',
     ]) {
       expect(checkText(t).safe, t).toBe(true);
     }
@@ -294,5 +297,42 @@ describe('brain router', () => {
     const openai = asOpenAI(new GemmaBrain(null));
     const r = new BrainRouter({ mode: () => 'auto', online: () => false, gemma: new GemmaBrain(null), openai });
     expect(r.current()).toBe('gemma');
+  });
+});
+
+import { OpenAIBrain } from '../src/index.js';
+
+describe('OpenAI brain (through the server)', () => {
+  const spec = getTemplate('squat_storm')!;
+  it('designs through the server and is validated like Gemma', async () => {
+    const calls: unknown[] = [];
+    const b = new OpenAIBrain(
+      async (path, body) => {
+        calls.push([path, body]);
+        return { result: spec };
+      },
+      async () => true,
+      async () => 'data:',
+    );
+    const o = await b.design('squat race', ctx);
+    expect(o.kind === 'game' && o.source).toBe('model');
+    expect(calls[0]).toEqual(['/openai/json', { task: 'design', request: 'squat race', ctx }]);
+  });
+
+  it('throws when the server is down, so the router falls back to Gemma', async () => {
+    const b = new OpenAIBrain(async () => ({}), async () => false, async () => 'data:');
+    await expect(b.design('squat race', ctx)).rejects.toThrow();
+    const log: BrainCallLog[] = [];
+    const r = new BrainRouter({ mode: () => 'boost', online: () => true, gemma: new GemmaBrain(null), openai: b, log: (e) => log.push(e) });
+    const o = await r.design('squat race', ctx);
+    expect(o.brain).toBe('gemma');
+    expect(log.map((l) => `${l.brain}:${l.ok}`)).toEqual(['openai:false', 'gemma:true']);
+  });
+
+  it('still refuses unsafe requests before calling OpenAI', async () => {
+    let called = false;
+    const b = new OpenAIBrain(async () => ((called = true), { result: spec }), async () => true, async () => 'data:');
+    expect((await b.design('race across the road', ctx)).kind).toBe('unsafe');
+    expect(called).toBe(false);
   });
 });

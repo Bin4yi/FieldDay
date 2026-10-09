@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fieldday/brain": "workspace:*",
     "@fieldday/engine": "workspace:*",
     "@fieldday/net": "workspace:*",
     "@fieldday/quests": "workspace:*",

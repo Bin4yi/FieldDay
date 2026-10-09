@@ -5,8 +5,17 @@ export function canSpeak(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
+/** Boost Mode can plug in a live voice; it returns false if it could not speak. */
+let liveVoice: ((text: string) => boolean) | null = null;
+
+export function setLiveVoice(v: ((text: string) => boolean) | null) {
+  liveVoice = v;
+}
+
 export function speak(text: string, opts: { interrupt?: boolean; rate?: number } = {}) {
-  if (!canSpeak() || !text) return;
+  if (!text) return;
+  if (liveVoice && navigator.onLine && liveVoice(text)) return;
+  if (!canSpeak()) return;
   const synth = window.speechSynthesis;
   if (opts.interrupt) synth.cancel();
   const u = new SpeechSynthesisUtterance(text);

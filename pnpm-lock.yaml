@@ -20,6 +20,9 @@ importers:
 
   apps/server:
     dependencies:
+      '@fieldday/brain':
+        specifier: workspace:*
+        version: link:../../packages/brain
       '@fieldday/engine':
         specifier: workspace:*
         version: link:../../packages/engine

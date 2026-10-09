@@ -12,7 +12,9 @@ import { ScreenTimeMeter } from '../screenTime.js';
 import { watchShake } from '../vision/camera.js';
 import { extraLine, refereeText, sayMeasure } from '@fieldday/brain';
 import { go, href } from '../router.js';
-import { speak, stopSpeaking } from '../speech.js';
+import { setLiveVoice, speak, stopSpeaking } from '../speech.js';
+import { RealtimeReferee } from '../brain/realtime.js';
+import { boostAvailable, log as logBrain } from '../brain/service.js';
 import { useApp } from '../store.js';
 import { useVision } from '../vision/useVision.js';
 import { online, useOnline } from '../net/online.js';
@@ -184,6 +186,42 @@ export function Play() {
   }, [game, handle, style, kids, voice]);
 
   useEffect(() => () => stopSpeaking(), []);
+
+  // Boost Mode: live OpenAI Realtime voice; falls back to the phone voice
+  // automatically if the network goes.
+  useEffect(() => {
+    if (useApp.getState().settings.brainMode === 'open') return;
+    let ref: RealtimeReferee | null = null;
+    let cancelled = false;
+    void (async () => {
+      if (!(await boostAvailable())) return;
+      const started = Date.now();
+      try {
+        ref = await RealtimeReferee.connect(style, kids);
+        if (cancelled) return ref.close();
+        setLiveVoice((t) => ref?.say(t) ?? false);
+        logBrain({ brain: 'openai', op: 'refereeLine', startedAt: started, latencyMs: Date.now() - started, ok: true });
+        ref.onLost(() => {
+          setLiveVoice(null);
+          const text = 'Signal lost. The phone voice takes over!';
+          setLine(text);
+          if (voice) speak(text);
+          logBrain({ brain: 'gemma', op: 'refereeLine', startedAt: Date.now(), latencyMs: 0, ok: true, fallback: 'other_brain' });
+        });
+      } catch (e) {
+        logBrain({ brain: 'openai', op: 'refereeLine', startedAt: started, latencyMs: Date.now() - started, ok: false, error: e instanceof Error ? e.message : String(e) });
+      }
+    })();
+    const offline = () => setLiveVoice(null);
+    window.addEventListener('offline', offline);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('offline', offline);
+      setLiveVoice(null);
+      ref?.close();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Live battle result from the server.
   const liveWinners = live?.winners ?? null;

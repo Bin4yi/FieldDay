@@ -10,3 +10,4 @@ export * from './design.js';
 export * from './gemma.js';
 export * from './router.js';
 export * from './stats.js';
+export * from './openai.js';

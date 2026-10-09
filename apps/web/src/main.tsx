@@ -4,6 +4,9 @@ import './styles.css';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App.js';
+import { boostAvailable } from './brain/service.js';
+
+void boostAvailable();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

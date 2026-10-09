@@ -3,6 +3,7 @@ import { cors } from 'hono/cors';
 import { z } from 'zod';
 import { GameSpecSchema, MeasureSchema, decodeGhost } from '@fieldday/engine';
 import { RateLimiter, cheatReason, makeRoomCode } from '@fieldday/net';
+import { BoostOff, JsonTaskSchema, OpenAIProxy } from './openai.js';
 import { RoomManager } from './rooms.js';
 import { MemoryStore, leaderboard, type Store } from './store.js';
 
@@ -15,6 +16,8 @@ export interface ServerConfig {
   designModel?: string;
   visionModel?: string;
   realtimeModel?: string;
+  /** Optional: another OpenAI-compatible endpoint (proxy, tests). */
+  baseUrl?: string;
 }
 
 export function readConfig(env: Record<string, string | undefined> = process.env): ServerConfig {
@@ -27,6 +30,7 @@ export function readConfig(env: Record<string, string | undefined> = process.env
     ...(env.OPENAI_DESIGN_MODEL ? { designModel: env.OPENAI_DESIGN_MODEL } : {}),
     ...(env.OPENAI_VISION_MODEL ? { visionModel: env.OPENAI_VISION_MODEL } : {}),
     ...(env.OPENAI_REALTIME_MODEL ? { realtimeModel: env.OPENAI_REALTIME_MODEL } : {}),
+    ...(env.OPENAI_BASE_URL ? { baseUrl: env.OPENAI_BASE_URL } : {}),
   };
 }
 
@@ -48,6 +52,8 @@ export function createApp(config: ServerConfig, deps: AppDeps = {}) {
   const random = deps.random ?? Math.random;
   const rooms = deps.rooms ?? new RoomManager({ store, now, random });
   const limiter = new RateLimiter(5, 30, now);
+  const aiLimiter = new RateLimiter(0.5, 10, now);
+  const openai = new OpenAIProxy(config, deps.fetch ?? fetch);
   const app = new Hono();
 
   app.use('*', cors({ origin: config.allowedOrigins }));
@@ -193,6 +199,38 @@ export function createApp(config: ServerConfig, deps: AppDeps = {}) {
   app.get('/ghosts/:id', (c) => {
     const code = store.getGhost(c.req.param('id'));
     return code ? c.json({ code }) : c.json({ error: 'not_found' }, 404);
+  });
+
+  // ---------- Boost Mode (OpenAI proxy) ----------
+  const ai = async (c: Context, run: () => Promise<unknown>) => {
+    if (!openai.enabled) return c.json({ error: 'boost_off', message: 'Boost Mode is not set up on this server.' }, 503);
+    if (!aiLimiter.allow(ip(c))) return c.json({ error: 'rate_limited' }, 429);
+    try {
+      return c.json((await run()) as object);
+    } catch (e) {
+      if (e instanceof BoostOff) return c.json({ error: 'boost_off', message: e.message }, 503);
+      return c.json({ error: 'upstream', message: e instanceof Error ? e.message.slice(0, 200) : 'OpenAI failed' }, 502);
+    }
+  };
+
+  app.post('/openai/json', async (c) => {
+    const body = JsonTaskSchema.safeParse(await json(c));
+    if (!body.success) return bad(c, body.error.issues[0]?.message);
+    return ai(c, async () => ({ result: await openai.json(body.data) }));
+  });
+
+  app.post('/openai/vision', async (c) => {
+    const body = z
+      .object({ image: z.string().startsWith('data:image/').max(2_000_000), task: z.string().min(1).max(80) })
+      .safeParse(await json(c));
+    if (!body.success) return bad(c, 'need a small image and a task');
+    return ai(c, () => openai.photo(body.data.image, body.data.task));
+  });
+
+  app.post('/openai/realtime-token', async (c) => {
+    const body = z.object({ style: z.string().max(40).default('football_announcer'), kids: z.boolean().default(false) }).safeParse(await json(c));
+    if (!body.success) return bad(c);
+    return ai(c, () => openai.realtimeToken(body.data.style, body.data.kids));
   });
 
   return { app, rooms, store };

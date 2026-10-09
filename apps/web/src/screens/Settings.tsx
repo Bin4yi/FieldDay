@@ -2,6 +2,9 @@ import { REFEREE_STYLES, type RefereeStyle } from '@fieldday/engine';
 import type { BrainMode } from '@fieldday/brain';
 import { useApp } from '../store.js';
 import { href } from '../router.js';
+import { useEffect, useState } from 'react';
+import { boostAvailable } from '../brain/service.js';
+import { serverUrl, setServerUrl } from '../net/online.js';
 import { GemmaPanel, OfflinePack } from './BrainPanel.js';
 import { Screen } from './Layout.js';
 
@@ -22,6 +25,11 @@ const STYLE_NAMES: Record<RefereeStyle, string> = {
 export function SettingsScreen() {
   const settings = useApp((s) => s.settings);
   const set = useApp((s) => s.setSetting);
+  const [server, setServer] = useState(serverUrl());
+  const [boost, setBoost] = useState<boolean | null>(null);
+  useEffect(() => {
+    void boostAvailable().then(setBoost);
+  }, []);
   return (
     <Screen title="Settings">
       <fieldset className="field">
@@ -40,6 +48,24 @@ export function SettingsScreen() {
             </span>
           </label>
         ))}
+      </fieldset>
+
+      <fieldset className="field">
+        <legend>Server (online play + Boost)</legend>
+        <input type="url" value={server} aria-label="Server address" onChange={(e) => setServer(e.target.value)} />
+        <button
+          type="button"
+          className="fd-btn fd-btn--ghost"
+          onClick={() => {
+            setServerUrl(server);
+            location.reload();
+          }}
+        >
+          <span>Save server</span>
+        </button>
+        <p className="note">
+          Boost Mode on this server: <strong>{boost === null ? 'checking…' : boost ? 'available ✓' : 'not available (Open Mode is used)'}</strong>
+        </p>
       </fieldset>
 
       <fieldset className="field">

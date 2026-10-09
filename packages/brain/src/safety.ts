@@ -29,12 +29,12 @@ const RULES: Rule[] = [
     safer: (t) => t.replace(/\b(in|into|near|by|across) (the )?(pool|river|lake|sea|ocean|pond|canal|water)\b/g, 'on the grass'),
   },
   {
-    re: /\b(climb\w*|roof|rooftop|cliff|ledge|balcony|wall top|jump off|jumping off|from a height|up a tree|tree top|ladder|bridge)\b/,
+    re: /\b(climb\w*|roof|rooftop|cliff|ledge|balcony|wall top|jump(ing)? off (the|a|an|from|of|that|this) |from a height|up a tree|tree top|ladder|bridge)\b/,
     reason: 'No climbing or jumping from high places. Both feet start on flat ground.',
     safer: (t) =>
       t
         .replace(/\b(climb\w*|up a tree|tree top|ladder|roof|rooftop|cliff|ledge|balcony|bridge)\b/g, 'run to a tree')
-        .replace(/\bjump(ing)? off\b/g, 'jump on the spot'),
+        .replace(/\bjump(ing)? off (the|a|an|from|of|that|this) \w+/g, 'jump on the spot'),
   },
   {
     re: /\b(campfire|bonfire|flames?|lighter|matches|fireworks?|bbq coals?|petrol|gasoline|on fire|set fire|light a fire|near (the )?fire)\b/,
