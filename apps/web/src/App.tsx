@@ -1,25 +1,38 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
+import { Home } from './screens/Home.js';
+import { Art } from './Art.js';
+import { ASSETS } from './assets.js';
 import { useRoute } from './router.js';
 import { useApp } from './store.js';
-import { BracketScreen } from './screens/Bracket.js';
-import { BrainStats } from './screens/BrainStats.js';
-import { Me } from './screens/Me.js';
-import { GhostScreen } from './screens/GhostScreen.js';
-import { QuestBuilder } from './screens/QuestBuilder.js';
-import { QuestRunScreen } from './screens/QuestRun.js';
-import { QuestImport, Quests } from './screens/Quests.js';
-import { Scan } from './screens/Scan.js';
-import { BattleRoom, Watch } from './screens/BattleRoom.js';
-import { Crew } from './screens/Crew.js';
-import { FieldCheck } from './screens/FieldCheck.js';
-import { Say } from './screens/Say.js';
-import { GameSetup } from './screens/GameSetup.js';
-import { History } from './screens/History.js';
-import { Home } from './screens/Home.js';
-import { Play } from './screens/Play.js';
-import { QuickGames } from './screens/QuickGames.js';
-import { Results } from './screens/Results.js';
-import { SettingsScreen } from './screens/Settings.js';
+
+const BracketScreen = lazy(() => import('./screens/Bracket.js').then((m) => ({ default: m.BracketScreen })));
+const BrainStats = lazy(() => import('./screens/BrainStats.js').then((m) => ({ default: m.BrainStats })));
+const Me = lazy(() => import('./screens/Me.js').then((m) => ({ default: m.Me })));
+const GhostScreen = lazy(() => import('./screens/GhostScreen.js').then((m) => ({ default: m.GhostScreen })));
+const QuestBuilder = lazy(() => import('./screens/QuestBuilder.js').then((m) => ({ default: m.QuestBuilder })));
+const QuestRunScreen = lazy(() => import('./screens/QuestRun.js').then((m) => ({ default: m.QuestRunScreen })));
+const QuestImport = lazy(() => import('./screens/Quests.js').then((m) => ({ default: m.QuestImport })));
+const Quests = lazy(() => import('./screens/Quests.js').then((m) => ({ default: m.Quests })));
+const Scan = lazy(() => import('./screens/Scan.js').then((m) => ({ default: m.Scan })));
+const BattleRoom = lazy(() => import('./screens/BattleRoom.js').then((m) => ({ default: m.BattleRoom })));
+const Watch = lazy(() => import('./screens/BattleRoom.js').then((m) => ({ default: m.Watch })));
+const Crew = lazy(() => import('./screens/Crew.js').then((m) => ({ default: m.Crew })));
+const FieldCheck = lazy(() => import('./screens/FieldCheck.js').then((m) => ({ default: m.FieldCheck })));
+const Say = lazy(() => import('./screens/Say.js').then((m) => ({ default: m.Say })));
+const GameSetup = lazy(() => import('./screens/GameSetup.js').then((m) => ({ default: m.GameSetup })));
+const History = lazy(() => import('./screens/History.js').then((m) => ({ default: m.History })));
+const Play = lazy(() => import('./screens/Play.js').then((m) => ({ default: m.Play })));
+const QuickGames = lazy(() => import('./screens/QuickGames.js').then((m) => ({ default: m.QuickGames })));
+const Results = lazy(() => import('./screens/Results.js').then((m) => ({ default: m.Results })));
+const SettingsScreen = lazy(() => import('./screens/Settings.js').then((m) => ({ default: m.SettingsScreen })));
+
+function Loading() {
+  return (
+    <div className="screen" style={{ display: 'grid', placeItems: 'center' }} role="status" aria-label="Loading">
+      <Art asset={ASSETS.mascot.think} size={160} decorative />
+    </div>
+  );
+}
 
 export function App() {
   const route = useRoute();
@@ -28,6 +41,11 @@ export function App() {
     void loadSettings();
   }, [loadSettings]);
 
+  const page = screen(route);
+  return <Suspense fallback={<Loading />}>{page}</Suspense>;
+}
+
+function screen(route: ReturnType<typeof useRoute>): ReactNode {
   switch (route.name) {
     case 'home':
       return <Home />;

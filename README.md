@@ -4,6 +4,8 @@
 
 ![FieldDay: friends playing in a park with Volt the referee](assets/screens/hero_banner.png)
 
+<p align="center"><img src="docs/demo.gif" alt="Demo camera: a simulated player throws, the referee measures and scores" width="300"></p>
+
 FieldDay turns a phone into a voice-first referee for real outdoor games, battles and quests.
 Say a game ("highest throw battle, 3 rounds, 2 players"), lean the phone on a bag, and play with
 your body and a ball. The phone watches (pose + ball tracking), listens (bounce and catch sounds),
@@ -39,6 +41,14 @@ tracking (MediaPipe) all run on the phone.
 - **Touch Grass**: Screen-Time Meter ("You played 34 minutes. Screen time: 4%"), Outside Score,
   streaks, XP and badges, water-break reminders every 15 minutes, highlight clips.
 
+## Screens
+
+| Home | Say a game | Play (demo camera) | Quests |
+|---|---|---|---|
+| ![Home](docs/screenshots/home.png) | ![Say a game](docs/screenshots/say-a-game.png) | ![Play](docs/screenshots/play-demo-camera.png) | ![Quests](docs/screenshots/quests.png) |
+
+More: [architecture](docs/architecture.md) · [demo video script](docs/demo-script.md) · [write-up notes](docs/writeup-notes.md)
+
 ## Run it
 
 Needs Node 22+ and pnpm 10.
@@ -52,6 +62,7 @@ pnpm typecheck
 pnpm e2e            # Playwright: builds the PWA and plays games end to end, offline too
 pnpm assets         # re-make the WebP images from /assets (needs ImageMagick)
 pnpm --filter @fieldday/vision fixtures   # re-make the synthetic vision fixtures
+pnpm --filter @fieldday/vision bench      # vision logic cost per frame
 ```
 
 Camera and mic need **HTTPS** on a real phone: deploy `apps/web/dist` to any static HTTPS host,
@@ -159,6 +170,8 @@ Open-source libraries:
 | [TypeScript](https://www.typescriptlang.org) | Apache-2.0 |
 | [Vitest](https://vitest.dev) | MIT |
 | [Playwright](https://playwright.dev) | Apache-2.0 |
+| [axe-core](https://github.com/dequelabs/axe-core) (tests) | MPL-2.0 |
+| [ws](https://github.com/websockets/ws) | MIT |
 | [fake-indexeddb](https://github.com/dumbmatter/fakeIndexedDB) (tests) | Apache-2.0 |
 | [tsx](https://github.com/privatenumber/tsx) | MIT |
 | [Archivo Black](https://fonts.google.com/specimen/Archivo+Black) via [Fontsource](https://fontsource.org) | OFL-1.1 (font), MIT (package) |
