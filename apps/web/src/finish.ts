@@ -38,6 +38,13 @@ export async function finishGame(f: FinishInput): Promise<number> {
     screenTimePct: Math.round(f.screenFraction * 1000) / 10,
     outside: f.outside,
     format: session.format.kind,
+    spec: session.spec,
+    rounds: r.players.map((p) => p.rounds),
+    bests: r.players.map((p) => {
+      const m = session.spec.scoring.find((x) => x.points === 'measure')?.measure;
+      return m ? (p.stats.best[m] ?? null) : null;
+    }),
+    ...(session.ghost ? { ghost: { name: session.ghost.name, total: session.ghost.total } } : {}),
     ...f.extra,
   };
   const id = await saveResult(d, record);

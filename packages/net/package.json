@@ -3,7 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": { ".": "./src/index.ts" },
-  "scripts": { "typecheck": "tsc --noEmit" },
-  "dependencies": { "@fieldday/engine": "workspace:*", "zod": "^4.4.6" }
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fieldday/engine": "workspace:*",
+    "zod": "^4.4.6",
+    "@fieldday/quests": "workspace:*"
+  }
 }

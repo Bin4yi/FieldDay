@@ -3,13 +3,14 @@ import { ASSETS } from '../assets.js';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { createGame, type GameEngine, type RefereeMoment } from '@fieldday/engine';
 import { BigButton, BigNumber, PlayerTag } from '@fieldday/ui';
-import { chaosFor } from '@fieldday/engine';
+import { aheadOfGhost, chaosFor } from '@fieldday/engine';
+import { goalMeasuresFor } from '../questGoals.js';
 import { ClipRecorder } from '../clips.js';
 import { finishGame } from '../finish.js';
 import { eventWord, formatValue, scoreMeasure, scoreUnit } from '../gameInfo.js';
 import { ScreenTimeMeter } from '../screenTime.js';
 import { watchShake } from '../vision/camera.js';
-import { extraLine, refereeText } from '@fieldday/brain';
+import { extraLine, refereeText, sayMeasure } from '@fieldday/brain';
 import { go, href } from '../router.js';
 import { speak, stopSpeaking } from '../speech.js';
 import { useApp } from '../store.js';
@@ -59,6 +60,21 @@ export function Play() {
         .map((m) => refereeText(m, style, { names: session.players, spec: session.spec, kids }))
         .filter((x): x is string => !!x);
       if (moments.some((m) => m.kind === 'game_start')) lines.push('Check there is free space around you.');
+      const ghost = session.ghost;
+      if (ghost) {
+        const gm = session.spec.scoring.find((r) => r.points === 'measure')?.measure ?? null;
+        for (const m of moments) {
+          if (m.kind === 'turn_start' && m.player !== null) {
+            const gv = ghost.rounds[m.round];
+            if (gv !== null && gv !== undefined) lines.push(extraLine('ghost_behind', style, { name: session.players[m.player] ?? '', value: sayMeasure(gv, gm) }, kids).replace('The ghost', `${ghost.name}’s ghost`));
+          }
+          if (m.kind === 'score') {
+            const gv = ghost.rounds[game.state.round] ?? null;
+            const ahead = aheadOfGhost(session.spec, m.roundScore, gv);
+            if (ahead === true) lines.push(extraLine('ghost_ahead', style, { value: sayMeasure(m.roundScore, gm) }, kids));
+          }
+        }
+      }
       if (lines.length) {
         setLine(lines.at(-1)!);
         if (voice) speak(lines.join(' '));
@@ -93,7 +109,15 @@ export function Play() {
             clip: blob,
             bestThrowM: bestThrow.current,
           });
-          setTimeout(() => go({ name: 'results', id }), 2000);
+          if (session.format.kind === 'quest') {
+            useApp.getState().setQuestReport({
+              step: session.format.step,
+              measures: goalMeasuresFor(game, useApp.getState().questRun),
+              won: game.result().winners.length > 0,
+              resultId: id,
+            });
+            setTimeout(() => go({ name: 'quest' }), 2000);
+          } else setTimeout(() => go({ name: 'results', id }), 2000);
         })().catch(() => setLine('Game over! (Could not save the result on this phone.)'));
       }
       if (game.state.phase === 'between_turns') setCountdown(COUNTDOWN);
@@ -368,6 +392,19 @@ export function Play() {
               </span>
             </li>
           ))}
+          {session.ghost ? (
+            <li>
+              <span className="fd-player" style={{ ['--fd-player' as string]: '#ffffff' }}>
+                <span className="fd-player__shape" aria-hidden="true">
+                  👻
+                </span>
+                {session.ghost.name}’s ghost
+              </span>
+              <span className="scoreboard__score">
+                {formatValue(session.ghost.total, measure)} {unit}
+              </span>
+            </li>
+          ) : null}
         </ol>
 
         {session.camera === 'off' ? (

@@ -95,3 +95,22 @@ describe('quest generator', () => {
     expect(generateQuest({ seed: 3, minutes: 20 }).steps.at(-1)?.type).toBe('boss');
   });
 });
+
+import { decodeQuest, encodeQuest } from '../src/index.js';
+
+describe('quest sharing and resume', () => {
+  it('a generated quest fits a QR code and round-trips', () => {
+    const q = generateQuest({ seed: 5, minutes: 20 });
+    const code = encodeQuest(q);
+    expect(code.length).toBeLessThan(1000);
+    expect(decodeQuest(`#/q/${code}`)).toEqual(q);
+  });
+
+  it('resumes from a snapshot', () => {
+    const q = generateQuest({ seed: 9, minutes: 12 });
+    const run = new QuestRun(q, 0);
+    if (q.steps[0]!.type === 'game') run.reportGame({ height_m: 9, count: 99, reaction_ms: 1 }, true, 1);
+    const again = new QuestRun(q, 0, 1, run.snapshot());
+    expect(again.state.stepIndex).toBe(run.state.stepIndex);
+  });
+});

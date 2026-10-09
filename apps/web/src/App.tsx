@@ -4,6 +4,11 @@ import { useApp } from './store.js';
 import { BracketScreen } from './screens/Bracket.js';
 import { BrainStats } from './screens/BrainStats.js';
 import { Me } from './screens/Me.js';
+import { GhostScreen } from './screens/GhostScreen.js';
+import { QuestBuilder } from './screens/QuestBuilder.js';
+import { QuestRunScreen } from './screens/QuestRun.js';
+import { QuestImport, Quests } from './screens/Quests.js';
+import { Scan } from './screens/Scan.js';
 import { FieldCheck } from './screens/FieldCheck.js';
 import { Say } from './screens/Say.js';
 import { GameSetup } from './screens/GameSetup.js';
@@ -38,6 +43,18 @@ export function App() {
       return <BracketScreen />;
     case 'me':
       return <Me />;
+    case 'quests':
+      return <Quests />;
+    case 'questNew':
+      return <QuestBuilder />;
+    case 'quest':
+      return <QuestRunScreen />;
+    case 'scan':
+      return <Scan />;
+    case 'ghost':
+      return <GhostScreen code={route.code} />;
+    case 'questImport':
+      return <QuestImport code={route.code} />;
     case 'stats':
       return <BrainStats />;
     case 'results':

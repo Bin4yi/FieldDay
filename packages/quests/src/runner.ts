@@ -34,10 +34,15 @@ export class QuestRun {
   private s: QuestRunState;
   private readonly players: number;
 
-  constructor(quest: QuestSpec, startedAt: number, players = quest.players ?? 1) {
+  constructor(quest: QuestSpec, startedAt: number, players = quest.players ?? 1, state?: QuestRunState) {
     this.quest = quest;
     this.players = Math.max(1, players);
-    this.s = { stepIndex: 0, status: 'active', outcomes: [], startedAt, finishedAt: null };
+    this.s = state ? structuredClone(state) : { stepIndex: 0, status: 'active', outcomes: [], startedAt, finishedAt: null };
+  }
+
+  /** Copy of the state, to save and resume later. */
+  snapshot(): QuestRunState {
+    return structuredClone(this.s);
   }
 
   get state(): Readonly<QuestRunState> {

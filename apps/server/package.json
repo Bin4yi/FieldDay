@@ -9,9 +9,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@fieldday/engine": "workspace:*",
     "@fieldday/net": "workspace:*",
+    "@fieldday/quests": "workspace:*",
     "@hono/node-server": "^2.1.4",
-    "hono": "^4.13.13"
+    "hono": "^4.13.13",
+    "ws": "8.22.0"
   },
-  "devDependencies": { "tsx": "^4.20.0" }
+  "devDependencies": {
+    "@types/ws": "8.18.2",
+    "tsx": "^4.20.0"
+  }
 }

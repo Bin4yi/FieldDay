@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { Bracket, GameSpec, HillState } from '@fieldday/engine';
+import type { Bracket, GameSpec, Ghost, HillState, Measure } from '@fieldday/engine';
+import type { QuestRunState, QuestSpec } from '@fieldday/quests';
 import type { Calibration, Zone } from '@fieldday/vision';
 import type { CameraMode } from './vision/useVision.js';
 import { db } from './db.js';
@@ -30,6 +31,24 @@ export interface Session {
   histograms: (number[] | null)[];
   zones: Zone[];
   lineY: number | null;
+  /** Racing a friend's ghost. */
+  ghost?: Ghost;
+}
+
+export interface QuestRunSave {
+  quest: QuestSpec;
+  state: QuestRunState;
+  players: string[];
+  /** Stayed offline for the whole quest (Offline Hero badge). */
+  offlineAll: boolean;
+  savedId?: number;
+}
+
+export interface QuestGameReport {
+  step: number;
+  measures: Partial<Record<Measure, number>>;
+  won: boolean;
+  resultId: number;
 }
 
 interface AppState {
@@ -41,6 +60,10 @@ interface AppState {
   setDraft(spec: GameSpec | null): void;
   series: Series | null;
   setSeries(s: Series | null): void;
+  questRun: QuestRunSave | null;
+  setQuestRun(q: QuestRunSave | null): void;
+  questReport: QuestGameReport | null;
+  setQuestReport(r: QuestGameReport | null): void;
   loadSettings(): Promise<void>;
   setSetting<K extends keyof Settings>(key: K, value: Settings[K]): void;
   startSession(s: Session): void;
@@ -59,9 +82,22 @@ export const useApp = create<AppState>((set) => ({
   setSeries(series) {
     set({ series });
   },
+  questRun: null,
+  setQuestRun(questRun) {
+    set({ questRun });
+    void db()
+      .settings.put({ key: 'questRun', value: questRun })
+      .catch(() => undefined);
+  },
+  questReport: null,
+  setQuestReport(questReport) {
+    set({ questReport });
+  },
   async loadSettings() {
     try {
       set({ settings: await loadSettings(db()), settingsLoaded: true });
+      const q = await db().settings.get('questRun');
+      if (q?.value) set({ questRun: q.value as QuestRunSave });
     } catch {
       // Private mode or no IndexedDB: keep defaults, the app still works.
       set({ settingsLoaded: true });

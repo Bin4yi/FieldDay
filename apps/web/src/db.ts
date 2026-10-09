@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { BrainCallLog } from '@fieldday/brain';
 import type { GameSpec } from '@fieldday/engine';
+import type { QuestSpec } from '@fieldday/quests';
 
 // Everything is stored on the phone (IndexedDB). Nothing here is sent anywhere.
 
@@ -34,6 +35,14 @@ export interface ResultRecord {
   questXp?: number;
   badges?: string[];
   clipId?: number;
+  /** The game played (for ghosts and replays of custom games). */
+  spec?: GameSpec;
+  /** Round scores per player. */
+  rounds?: (number | null)[][];
+  /** Best measured value per player (e.g. best throw). */
+  bests?: (number | null)[];
+  /** Raced a ghost. */
+  ghost?: { name: string; total: number | null };
 }
 
 export interface BadgeRecord {
@@ -49,8 +58,9 @@ export interface SettingRow {
 export interface QuestRecord {
   id?: number;
   title: string;
-  quest: unknown;
+  quest: QuestSpec;
   createdAt: number;
+  doneAt?: number;
 }
 
 export interface GhostRecord {

@@ -10,6 +10,12 @@ export type Route =
   | { name: 'check' }
   | { name: 'say' }
   | { name: 'bracket' }
+  | { name: 'quests' }
+  | { name: 'questNew' }
+  | { name: 'quest' }
+  | { name: 'scan' }
+  | { name: 'ghost'; code: string }
+  | { name: 'questImport'; code: string }
   | { name: 'me' }
   | { name: 'stats' }
   | { name: 'results'; id: number }
@@ -31,6 +37,18 @@ export function parseRoute(hash: string): Route {
       return { name: 'say' };
     case 'bracket':
       return { name: 'bracket' };
+    case 'quests':
+      return { name: 'quests' };
+    case 'quest-new':
+      return { name: 'questNew' };
+    case 'quest':
+      return { name: 'quest' };
+    case 'scan':
+      return { name: 'scan' };
+    case 'ghost':
+      return parts[1] ? { name: 'ghost', code: parts[1] } : { name: 'scan' };
+    case 'q':
+      return parts[1] ? { name: 'questImport', code: parts[1] } : { name: 'quests' };
     case 'me':
       return { name: 'me' };
     case 'stats':
@@ -56,6 +74,12 @@ export function href(r: Route): string {
       return `#/setup/${r.id}`;
     case 'results':
       return `#/results/${r.id}`;
+    case 'questNew':
+      return '#/quest-new';
+    case 'ghost':
+      return `#/ghost/${r.code}`;
+    case 'questImport':
+      return `#/q/${r.code}`;
     default:
       return `#/${r.name}`;
   }

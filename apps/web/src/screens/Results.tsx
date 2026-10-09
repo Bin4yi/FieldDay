@@ -5,6 +5,8 @@ import { ASSETS, type BadgeKey } from '../assets.js';
 import { db, type ResultRecord } from '../db.js';
 import { go } from '../router.js';
 import { useApp } from '../store.js';
+import { ghostFromRecord, ghostUrl } from '../ghosts.js';
+import { ShareSheet } from '../ShareSheet.js';
 import { Screen } from './Layout.js';
 
 export function Results({ id }: { id: number }) {
@@ -12,6 +14,7 @@ export function Results({ id }: { id: number }) {
   const [clipUrl, setClipUrl] = useState<string | null>(null);
   const [clipBlob, setClipBlob] = useState<Blob | null>(null);
   const series = useApp((s) => s.series);
+  const [ghostFor, setGhostFor] = useState<number | null>(null);
 
   useEffect(() => {
     let url: string | null = null;
@@ -101,6 +104,42 @@ export function Results({ id }: { id: number }) {
               Share clip
             </BigButton>
             <p className="note">The clip is only on this phone until you share it.</p>
+          </div>
+        ) : null}
+
+        {r.ghost ? (
+          <div className="card card--navy stack">
+            <span className="sticker sticker--white">👻 Ghost race</span>
+            <p className="display">
+              {r.ghost.total === null || r.totals[0] == null
+                ? 'Ghost race done.'
+                : (r.spec?.win_condition === 'lowest' ? r.totals[0]! < r.ghost.total : r.totals[0]! > r.ghost.total)
+                  ? `You beat ${r.ghost.name}’s ghost!`
+                  : `${r.ghost.name}’s ghost wins this time.`}
+            </p>
+          </div>
+        ) : null}
+
+        {r.rounds && r.format !== 'quest' ? (
+          <div className="card stack">
+            <div className="row">
+              <Art asset={ASSETS.modes.ghost} size={64} decorative />
+              <h3 style={{ flex: 1 }}>Challenge a friend</h3>
+            </div>
+            <p className="note">Make a ghost: your scores in a QR code. Friends race it, even with no internet.</p>
+            <div className="seg">
+              {r.players.map((p, i) => (
+                <button key={i} type="button" aria-pressed={ghostFor === i} onClick={() => setGhostFor(i)}>
+                  {p}’s ghost
+                </button>
+              ))}
+            </div>
+            {ghostFor !== null
+              ? (() => {
+                  const g = ghostFromRecord(r, ghostFor);
+                  return g ? <ShareSheet url={ghostUrl(g)} title={`${g.name}’s ghost`} text={`Beat my ghost in ${r.title}!`} /> : <p className="note">This game cannot make a ghost.</p>;
+                })()
+              : null}
           </div>
         ) : null}
 
